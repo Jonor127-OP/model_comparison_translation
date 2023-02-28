@@ -10,10 +10,11 @@ from torch import nn
 
 from transformers.optimization import get_constant_schedule_with_warmup
 from model.optimizer import get_optimizer
+from model.utils import get_masks_and_count_tokens_trg
 
 from torch.utils.data import DataLoader
 
-from utils import TextSamplerDataset, MyCollate, ids_to_tokens, BPE_to_eval, epoch_time, count_parameters, mpp_generate_postprocessing
+from utils import TextSamplerDataset, MyCollate, ids_to_tokens, BPE_to_eval, epoch_time, count_parameters, remove_eos
 
 from model.transformer import Transformer
 
@@ -39,9 +40,9 @@ def train(finetuning):
 
     EPOCHS = 400
     BATCH_SIZE = 10
-    LEARNING_RATE = 1e-4
+    LEARNING_RATE = 5e-4
     GENERATE_EVERY  = 1
-    MAX_LEN = 120
+    MAX_LEN = 30
     WARMUP_STEP = 0
 
     # Step 2: Prepare the model (original transformer) and push to GPU
@@ -55,7 +56,7 @@ def train(finetuning):
     )
 
     # Step 3: Prepare other training related utilities
-    nll = nn.CrossEntropyLoss(ignore_index=3, label_smoothing=0.1)  # gives better BLEU score than "mean"
+    ca = nn.CrossEntropyLoss(ignore_index=0, label_smoothing=0.1)  # gives better BLEU score than "mean"
 
     # optimizer
     optimizer = get_optimizer(model.parameters(), LEARNING_RATE, wd=0.01)
@@ -110,10 +111,9 @@ def train(finetuning):
 
     train_dataset = TextSamplerDataset(X_dev, Y_dev, MAX_LEN)
     train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=4, shuffle=True,
-                           pin_memory=True, collate_fn=MyCollate(pad_idx=3))
+                           pin_memory=True, collate_fn=MyCollate(pad_idx=0))
     dev_dataset = TextSamplerDataset(X_dev, Y_dev, MAX_LEN)
-    dev_loader  = DataLoader(dev_dataset, batch_size=1)
-
+    dev_loader  = DataLoader(dev_dataset, batch_size=BATCH_SIZE, num_workers=4, collate_fn=MyCollate(pad_idx=0))
 
     model, optimizer, train_loader, dev_loader = accelerator.prepare(model, optimizer, train_loader, dev_loader)
 
@@ -125,9 +125,6 @@ def train(finetuning):
             ),
         )
 
-    report_loss = 0.
-    best_bleu = 0
-
     # training
     for i in tqdm.tqdm(range(EPOCHS), desc='training'):
         start_time = time.time()
@@ -135,22 +132,20 @@ def train(finetuning):
 
         countdown = 0
 
-        for src, tgt in train_loader:
+        for src_train, tgt_train in train_loader:
 
-            src_mask = src != 3
+            src_mask = src_train != 0
             src_mask = src_mask[:, None, None, :]
 
-            tgt_mask = tgt != 3
-            tgt_mask = tgt_mask[:, None, None, :]
-            tgt_mask = tgt_mask.repeat(1, 1, tgt_mask.shape[-1], 1)
+            inp_tgt, out_tgt = remove_eos(tgt_train), tgt_train[:, 1:]
+
+            tgt_mask = get_masks_and_count_tokens_trg(inp_tgt)
 
             countdown += 1
 
-            predicted_log_distributions = model(src, tgt, src_mask, tgt_mask)
+            predicted_log_distributions = model(src_train, inp_tgt, src_mask, tgt_mask)
 
-            loss = nll(predicted_log_distributions.view(-1, NUM_TOKENS), tgt.view(-1).type(torch.LongTensor))
-
-            print(optimizer.defaults['lr'])
+            loss = ca(predicted_log_distributions.view(-1, NUM_TOKENS), out_tgt.contiguous().view(-1).type(torch.LongTensor))
 
             accelerator.backward(loss)
 
@@ -160,53 +155,45 @@ def train(finetuning):
             optimizer.zero_grad()
             scheduler.step()
 
-        print('[Epoch %d] epoch elapsed %ds' % (i, time.time() - start_time))
+        print('loss =', loss.item())
 
-        print('loss only', loss)
+        # torch.save(model.state_dict(),
+        #            'output/model_seq2seq_each_epoch.pt'
+        #            )
 
-        torch.save(model.state_dict(),
-                   'output/model_seq2seq_each_epoch.pt'
-                   )
+        if i != 0 and i % GENERATE_EVERY == 0:
 
-        # if i != 0 and i % GENERATE_EVERY == 0:
-        #
-        #     model.eval()
-        #     target = []
-        #     predicted = []
-        #     for src, tgt in dev_loader:
-        #         start_tokens = (torch.ones((1, 1)) * 1).long().cuda()
-        #
-        #         sample = model.module.generate(src, start_tokens, MAX_LEN)
-        #
-        #         sample = mpp_generate_postprocessing(sample, eos_token=0)
-        #
-        #         # print(f"input:  ", src)
-        #         # print(f"target:", tgt)
-        #         # print(f"predicted output:  ", sample)
-        #
-        #         target.append(ids_to_tokens(tgt.tolist()[0], vocabulary))
-        #         predicted.append(ids_to_tokens(sample.tolist()[0], vocabulary))
-        #
-        #     target_bleu = [BPE_to_eval(sentence) for sentence in target]
-        #
-        #     predicted_bleu = [BPE_to_eval(sentence) for sentence in predicted]
-        #
-        #     end_time = time.time()
-        #
-        #     epoch_mins, epoch_secs = epoch_time(start_time, end_time)
-        #
-        #     bleu = sacrebleu.corpus_bleu(predicted_bleu, [target_bleu])
-        #     bleu = bleu.score
-        #     print('Epoch: {0} | Time: {1}m {2}s, bleu score = {3}'.format(i, epoch_mins, epoch_secs, bleu))
-        #
-        #     if bleu > best_bleu:
-        #         best_bleu = bleu
-        #         torch.save(model.state_dict(),
-        #                    'output/model_seq2seq.pt'
-        #                    )
-        #
-        #         torch.save(optimizer.state_dict(), 'output/optim_seq2seq.bin')
+            model.eval()
+            target = []
+            predicted = []
+            for src_dev, tgt_dev in dev_loader:
+                src_mask = src_dev != 0
+                src_mask = src_mask[:, None, None, :]
 
+                sample = model.generate_greedy(src_dev, src_mask, MAX_LEN)
+
+                target.append([ids_to_tokens(tgt_dev.tolist()[i][1:], vocabulary) for i in range(tgt_dev.shape[0])])
+                predicted.append([ids_to_tokens(sample.tolist()[i][1:], vocabulary) for i in range(tgt_dev.shape[0])])
+
+            target_bleu = [BPE_to_eval(sentence) for sentence in target[0]]
+
+            predicted_bleu = [BPE_to_eval(sentence) for sentence in predicted[0]]
+
+            end_time = time.time()
+
+            epoch_mins, epoch_secs = epoch_time(start_time, end_time)
+
+            bleu = sacrebleu.corpus_bleu(predicted_bleu, [target_bleu])
+            bleu = bleu.score
+            print('Epoch: {0} | Time: {1}m {2}s, bleu score = {3}'.format(i, epoch_mins, epoch_secs, bleu))
+
+            if bleu > best_bleu:
+                best_bleu = bleu
+                torch.save(model.state_dict(),
+                           'output/model_seq2seq.pt'
+                           )
+
+                torch.save(optimizer.state_dict(), 'output/optim_seq2seq.bin')
 
 
 if __name__ == '__main__':

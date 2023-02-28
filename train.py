@@ -12,7 +12,7 @@ from model.optimizer import get_optimizer
 from model.utils import get_masks_and_count_tokens_trg
 from torch.utils.data import DataLoader
 
-from utils import TextSamplerDataset, MyCollate, ids_to_tokens, BPE_to_eval, epoch_time, count_parameters, calculate_bleu_score, remove_eos
+from utils import TextSamplerDataset, MyCollate, ids_to_tokens, BPE_to_eval, epoch_time, count_parameters, remove_eos
 
 from model.transformer import Transformer
 
@@ -115,7 +115,6 @@ def train(finetuning):
             ),
         )
 
-    report_loss = 0.
     best_bleu = 0
 
     # training

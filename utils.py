@@ -95,32 +95,3 @@ def remove_eos(x, eos_id=1):
     X_no_eos = x * mask
 
     return X_no_eos[:, :-1]
-
-
-# Calculate the BLEU-4 score
-def calculate_bleu_score(src, tgt):
-    with torch.no_grad():
-        pad_token_id = 0
-
-        gt_sentences_corpus = []
-        predicted_sentences_corpus = []
-
-        ts = time.time()
-
-        src_mask = src != 0
-        src_mask = src_mask[:, None, None, :]
-
-        src_representations_batch = transformer.encode(src_token_ids_batch, src_mask)
-
-        predicted_sentences = greedy_decoding(transformer, src_representations_batch, src_mask, trg_field_processor)
-        predicted_sentences_corpus.extend(predicted_sentences)  # add them to the corpus of translations
-
-        # Get the token and not id version of GT (ground-truth) sentences
-        trg_token_ids_batch = trg_token_ids_batch.cpu().numpy()
-        for target_sentence_ids in trg_token_ids_batch:
-            target_sentence_tokens = [trg_field_processor.vocab.itos[id] for id in target_sentence_ids if id != pad_token_id]
-            gt_sentences_corpus.append([target_sentence_tokens])  # add them to the corpus of GT translations
-
-        bleu_score = corpus_bleu(gt_sentences_corpus, predicted_sentences_corpus)
-        print(f'BLEU-4 corpus score = {bleu_score}, corpus length = {len(gt_sentences_corpus)}, time elapsed = {time.time()-ts} seconds.')
-        return
