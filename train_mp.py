@@ -20,7 +20,7 @@ from model.transformer import Transformer
 
 from accelerate import Accelerator, DistributedDataParallelKwargs, InitProcessGroupKwargs
 
-import evaluate
+import sacrebleu
 
 def train(finetuning):
 
@@ -57,8 +57,6 @@ def train(finetuning):
 
     # Step 3: Prepare other training related utilities
     ca = nn.CrossEntropyLoss(ignore_index=0, label_smoothing=0.1)
-
-    metric = evaluate.load('./sacrebleu')
 
     # optimizer
     optimizer = get_optimizer(model.parameters(), LEARNING_RATE, wd=0.01)
@@ -189,10 +187,9 @@ def train(finetuning):
 
             epoch_mins, epoch_secs = epoch_time(start_time, end_time)
 
-            metric.add_batch(predictions=[predicted_bleu], references=[target_bleu])
+            bleu = sacrebleu.corpus_bleu(predicted_bleu, [target_bleu])
 
-            bleu = metric.compute()
-            bleu = bleu['score']
+            bleu = bleu.score
 
             print('Epoch: {0} | Time: {1}m {2}s, bleu score = {3}'.format(i, epoch_mins, epoch_secs, bleu))
 
