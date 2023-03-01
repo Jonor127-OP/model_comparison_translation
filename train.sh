@@ -14,7 +14,7 @@
 
 #SBATCH --gres=gpu:2
 
-#SBATCH --cpus-per-task=2
+#SBATCH --cpus-per-task=40
 
 #SBATCH --hint=nomultithread
 
@@ -29,4 +29,4 @@ nvidia-smi
 # This will create a config file on your server
 
 
-srun accelerate launch --multi_gpu train_mp.py
+srun accelerate launch --multi_gpu train_mp.py CUDA_LAUNCH_BLOCKING=1

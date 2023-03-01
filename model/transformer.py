@@ -127,9 +127,6 @@ class Transformer(nn.Module):
 
         return trg_token_ids_batch
 
-    def generate_beam(self, src, src_mask, beam_size, MAX_LEN):
-        pass
-
 
 #
 # Encoder architecture
