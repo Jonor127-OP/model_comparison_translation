@@ -20,7 +20,7 @@ from model.transformer import Transformer
 
 from accelerate import Accelerator, DistributedDataParallelKwargs, InitProcessGroupKwargs
 
-import datasets
+import evaluate
 
 def train(finetuning):
 
@@ -58,7 +58,7 @@ def train(finetuning):
     # Step 3: Prepare other training related utilities
     ca = nn.CrossEntropyLoss(ignore_index=0, label_smoothing=0.1)
 
-    metric = datasets.load_metric('sacrebleu')
+    metric = evaluate.load('./sacrebleu')
 
     # optimizer
     optimizer = get_optimizer(model.parameters(), LEARNING_RATE, wd=0.01)
