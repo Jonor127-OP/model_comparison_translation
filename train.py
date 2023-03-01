@@ -16,7 +16,7 @@ from utils import TextSamplerDataset, MyCollate, ids_to_tokens, BPE_to_eval, epo
 
 from model.transformer import Transformer
 
-import datasets
+import evaluate
 
 def train(finetuning):
 
@@ -50,7 +50,7 @@ def train(finetuning):
     # Step 3: Prepare other training related utilities
     ce = nn.CrossEntropyLoss(ignore_index=0, label_smoothing=0.1)
 
-    metric = datasets.load_metric('sacrebleu')
+    metric = evaluate.load('./sacrebleu')
 
     # optimizer
     optimizer = get_optimizer(model.parameters(), LEARNING_RATE, wd=0.01)
