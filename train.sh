@@ -23,7 +23,7 @@
 
 module purge
 module load anaconda-py3/2019.03
-conda activate lmvsseq2seq
+conda activate modelcomparisontranslation
 set -x
 nvidia-smi
 # This will create a config file on your server
