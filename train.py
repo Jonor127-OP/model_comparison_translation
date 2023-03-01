@@ -16,7 +16,7 @@ from utils import TextSamplerDataset, MyCollate, ids_to_tokens, BPE_to_eval, epo
 
 from model.transformer import Transformer
 
-import sacrebleu
+import datasets
 
 def train(finetuning):
 
@@ -48,7 +48,9 @@ def train(finetuning):
     )
 
     # Step 3: Prepare other training related utilities
-    ce = nn.CrossEntropyLoss(ignore_index=0, label_smoothing=0.1)  # gives better BLEU score than "mean"
+    ce = nn.CrossEntropyLoss(ignore_index=0, label_smoothing=0.1)
+
+    metric = datasets.load_metric('sacrebleu')
 
     # optimizer
     optimizer = get_optimizer(model.parameters(), LEARNING_RATE, wd=0.01)
@@ -180,8 +182,10 @@ def train(finetuning):
 
             epoch_mins, epoch_secs = epoch_time(start_time, end_time)
 
-            bleu = sacrebleu.corpus_bleu(predicted_bleu, [target_bleu])
-            bleu = bleu.score
+            metric.add_batch(predictions=[predicted_bleu], references=[target_bleu])
+
+            bleu = metric.compute()
+            bleu = bleu['score']
             print('Epoch: {0} | Time: {1}m {2}s, bleu score = {3}'.format(i, epoch_mins, epoch_secs, bleu))
 
             if bleu > best_bleu:

@@ -20,7 +20,7 @@ from model.transformer import Transformer
 
 from accelerate import Accelerator, DistributedDataParallelKwargs, InitProcessGroupKwargs
 
-import sacrebleu
+import datasets
 
 def train(finetuning):
 
@@ -56,7 +56,9 @@ def train(finetuning):
     )
 
     # Step 3: Prepare other training related utilities
-    ca = nn.CrossEntropyLoss(ignore_index=0, label_smoothing=0.1)  # gives better BLEU score than "mean"
+    ca = nn.CrossEntropyLoss(ignore_index=0, label_smoothing=0.1)
+
+    metric = datasets.load_metric('sacrebleu')
 
     # optimizer
     optimizer = get_optimizer(model.parameters(), LEARNING_RATE, wd=0.01)
@@ -125,6 +127,8 @@ def train(finetuning):
             ),
         )
 
+    best_bleu = 0
+
     # training
     for i in tqdm.tqdm(range(EPOCHS), desc='training'):
         start_time = time.time()
@@ -176,15 +180,20 @@ def train(finetuning):
                 predicted.append([ids_to_tokens(sample.tolist()[i][1:], vocabulary) for i in range(tgt_dev.shape[0])])
 
             target_bleu = [BPE_to_eval(sentence) for sentence in target[0]]
-
             predicted_bleu = [BPE_to_eval(sentence) for sentence in predicted[0]]
+
+            predicted_bleu = accelerator.gather(predicted_bleu)
+            target_bleu = accelerator.gather(target_bleu)
 
             end_time = time.time()
 
             epoch_mins, epoch_secs = epoch_time(start_time, end_time)
 
-            bleu = sacrebleu.corpus_bleu(predicted_bleu, [target_bleu])
-            bleu = bleu.score
+            metric.add_batch(predictions=[predicted_bleu], references=[target_bleu])
+
+            bleu = metric.compute()
+            bleu = bleu['score']
+
             print('Epoch: {0} | Time: {1}m {2}s, bleu score = {3}'.format(i, epoch_mins, epoch_secs, bleu))
 
             if bleu > best_bleu:
