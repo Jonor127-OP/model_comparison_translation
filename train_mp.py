@@ -10,7 +10,6 @@ from torch import nn
 
 from transformers.optimization import get_constant_schedule_with_warmup
 from model.optimizer import get_optimizer
-from model.utils import get_masks_and_count_tokens_trg
 
 from torch.utils.data import DataLoader
 
@@ -141,7 +140,7 @@ def train(finetuning):
 
             inp_tgt, out_tgt = remove_eos(tgt_train), tgt_train[:, 1:]
 
-            tgt_mask = get_masks_and_count_tokens_trg(inp_tgt)
+            tgt_mask = model.get_masks_and_count_tokens_trg(inp_tgt)
 
             countdown += 1
 
