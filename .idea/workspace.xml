@@ -1,10 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="24cbd687-f852-49c9-b2a7-9816ec256288" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/transformer.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/transformer.py" afterDir="false" />
-    </list>
+    <list default="true" id="24cbd687-f852-49c9-b2a7-9816ec256288" name="Changes" comment="" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -92,7 +89,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1677608108061</updated>
-      <workItem from="1677608109621" duration="9764000" />
+      <workItem from="1677608109621" duration="10111000" />
     </task>
     <servers />
   </component>
