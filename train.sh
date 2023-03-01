@@ -29,4 +29,4 @@ nvidia-smi
 # This will create a config file on your server
 
 
-srun CUDA_LAUNCH_BLOCKING=1 accelerate launch --multi_gpu train_mp.py
+srun accelerate launch --multi_gpu CUDA_LAUNCH_BLOCKING=1 train_mp.py
