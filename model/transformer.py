@@ -134,7 +134,7 @@ class Transformer(nn.Module):
         tgt_mask = tgt_mask[:, None, None, :]
         trg_padding_mask = tgt_mask.repeat(1, 1, tgt_mask.shape[-1], 1)
         sequence_length = trg_token_ids_batch.shape[1]  # trg_token_ids shape = (B, T) where T max trg token-sequence length
-        trg_no_look_forward_mask = torch.triu(torch.ones((1, 1, sequence_length, sequence_length)) == 1).transpose(2, 3)
+        trg_no_look_forward_mask = torch.triu(torch.ones((1, 1, sequence_length, sequence_length)) == 1).transpose(2, 3).cuda()
         print(trg_padding_mask.device)
         print(trg_no_look_forward_mask.device)
         # logic AND operation (both padding mask and no-look-forward must be true to attend to a certain target token)
