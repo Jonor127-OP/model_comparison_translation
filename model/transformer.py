@@ -91,13 +91,13 @@ class Transformer(nn.Module):
 
         src_representations_batch = self.encode(src, src_mask)
 
-        trg_token_ids_batch = torch.tensor([2 for _ in range(src_representations_batch.shape[0])]).unsqueeze(1)
+        trg_token_ids_batch = torch.tensor([2 for _ in range(src_representations_batch.shape[0])]).unsqueeze(1).cuda()
 
         # Set to true for a particular target sentence once it reaches the EOS (end-of-sentence) token
         is_decoded = [False] * src_representations_batch.shape[0]
 
         while True:
-            tgt_mask = get_masks_and_count_tokens_trg(trg_token_ids_batch)
+            tgt_mask = get_masks_and_count_tokens_trg(trg_token_ids_batch).cuda()
 
             print(tgt_mask.device)
             print(trg_token_ids_batch.device)
