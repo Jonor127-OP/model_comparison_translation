@@ -130,7 +130,7 @@ def train(finetuning):
 
             inp_tgt, out_tgt = remove_eos(tgt_train), tgt_train[:, 1:]
 
-            tgt_mask = model.get_masks_and_count_tokens_trg(inp_tgt)
+            tgt_mask = model.get_masks_and_count_tokens_trg(inp_tgt, cuda=False)
 
             countdown += 1
 

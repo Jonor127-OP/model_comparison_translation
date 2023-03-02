@@ -77,13 +77,13 @@ class Transformer(nn.Module):
         return src_representations_batch
 
     def decode(self, trg_token_ids_batch, src_representations_batch, trg_mask, src_mask):
+
         trg_embeddings_batch = self.trg_embedding(trg_token_ids_batch)  # get embedding vectors for trg token ids
-        # print('trg_embeddings_batch', trg_embeddings_batch)
+
         trg_embeddings_batch = self.trg_pos_embedding(trg_embeddings_batch)  # add positional embedding
-        # print('trg_embeddings_batch_pos', trg_embeddings_batch)
+
         # Shape (B, T, D), where B - batch size, T - longest target token-sequence length and D - model dimension
         trg_representations_batch = self.decoder(trg_embeddings_batch, src_representations_batch, trg_mask, src_mask)
-        # print('trg_representations_batch', trg_representations_batch)
 
         # After this line we'll have a shape (B, T, V), where V - target vocab size, decoder generator does a simple
         # linear projection followed by softmax
@@ -91,11 +91,14 @@ class Transformer(nn.Module):
 
         return trg_log_probs
 
-    def generate_greedy(self, src, src_mask, MAX_LEN):
+    def generate_greedy(self, src, src_mask, MAX_LEN, cuda=True):
 
         src_representations_batch = self.encode(src, src_mask)
 
-        trg_token_ids_batch = torch.tensor([2 for _ in range(src_representations_batch.shape[0])]).unsqueeze(1).cuda()
+        if cuda:
+            trg_token_ids_batch = torch.tensor([2 for _ in range(src_representations_batch.shape[0])]).unsqueeze(1).cuda()
+        else:
+            trg_token_ids_batch = torch.tensor([2 for _ in range(src_representations_batch.shape[0])]).unsqueeze(1)
 
         # Set to true for a particular target sentence once it reaches the EOS (end-of-sentence) token
         is_decoded = [False] * src_representations_batch.shape[0]
@@ -131,12 +134,16 @@ class Transformer(nn.Module):
             if all(is_decoded) or current_len == MAX_LEN:
                 break
 
-            # Prepare the input for the next iteration (merge old token ids with the new column of most probable token ids)
-            trg_token_ids_batch = torch.cat((trg_token_ids_batch, torch.unsqueeze(
-                torch.tensor(most_probable_last_token_indices).cuda(), 1)), 1)
+            if cuda:
+                # Prepare the input for the next iteration (merge old token ids with the new column of most probable token ids)
+                trg_token_ids_batch = torch.cat((trg_token_ids_batch, torch.unsqueeze(
+                    torch.tensor(most_probable_last_token_indices).cuda(), 1)), 1)
+            else:
+                trg_token_ids_batch = torch.cat((trg_token_ids_batch, torch.unsqueeze(
+                    torch.tensor(most_probable_last_token_indices), 1)), 1)
 
         return trg_token_ids_batch
-    def get_masks_and_count_tokens_trg(self, trg_token_ids_batch, pad_token_id=0):
+    def get_masks_and_count_tokens_trg(self, trg_token_ids_batch, pad_token_id=0, cuda=True):
 
         # Same as src_mask but we additionally want to mask tokens from looking forward into the future tokens
         # Note: wherever the mask value is true we want to attend to that token, otherwise we mask (ignore) it.
@@ -144,7 +151,10 @@ class Transformer(nn.Module):
         tgt_mask = tgt_mask[:, None, None, :]
         trg_padding_mask = tgt_mask.repeat(1, 1, tgt_mask.shape[-1], 1)
         sequence_length = trg_token_ids_batch.shape[1]  # trg_token_ids shape = (B, T) where T max trg token-sequence length
-        trg_no_look_forward_mask = torch.triu(torch.ones((1, 1, sequence_length, sequence_length)) == 1).transpose(2, 3).cuda()
+        if cuda:
+            trg_no_look_forward_mask = torch.triu(torch.ones((1, 1, sequence_length, sequence_length)) == 1).transpose(2, 3).cuda()
+        else:
+            trg_no_look_forward_mask = torch.triu(torch.ones((1, 1, sequence_length, sequence_length)) == 1).transpose(2, 3)
         print(trg_padding_mask.device)
         print(trg_no_look_forward_mask.device)
         # logic AND operation (both padding mask and no-look-forward must be true to attend to a certain target token)
@@ -223,6 +233,7 @@ class Decoder(nn.Module):
         # Just update the naming so as to reflect the semantics of what this var will become
         trg_representations_batch = trg_embeddings_batch
         print('input', trg_representations_batch)
+        print('input')
 
         # Forward pass through the decoder stack
         for decoder_layer in self.decoder_layers:
@@ -254,12 +265,15 @@ class DecoderLayer(nn.Module):
         # The inputs which are not passed into lambdas are "cached" here that's why the thing works.
         srb = src_representations_batch  # simple/short alias
         decoder_trg_self_attention = lambda trb: self.trg_multi_headed_attention(query=trb, key=trb, value=trb, mask=trg_mask)
+        print('decoder_trg_self_attention', decoder_trg_self_attention)
         decoder_src_attention = lambda trb: self.src_multi_headed_attention(query=trb, key=srb, value=srb, mask=src_mask)
+        print('decoder_src_attention', decoder_src_attention)
 
         # Self-attention MHA sublayer followed by a source-attending MHA and point-wise feed forward net sublayer
         trg_representations_batch = self.sublayers[0](trg_representations_batch, decoder_trg_self_attention)
         trg_representations_batch = self.sublayers[1](trg_representations_batch, decoder_src_attention)
         trg_representations_batch = self.sublayers[2](trg_representations_batch, self.pointwise_net)
+        print('trg_representations_batch', trg_representations_batch)
 
         return trg_representations_batch
 
