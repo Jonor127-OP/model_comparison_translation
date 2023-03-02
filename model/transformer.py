@@ -78,12 +78,12 @@ class Transformer(nn.Module):
 
     def decode(self, trg_token_ids_batch, src_representations_batch, trg_mask, src_mask):
         trg_embeddings_batch = self.trg_embedding(trg_token_ids_batch)  # get embedding vectors for trg token ids
-        print('trg_embeddings_batch', trg_embeddings_batch)
+        # print('trg_embeddings_batch', trg_embeddings_batch)
         trg_embeddings_batch = self.trg_pos_embedding(trg_embeddings_batch)  # add positional embedding
-        print('trg_embeddings_batch_pos', trg_embeddings_batch)
+        # print('trg_embeddings_batch_pos', trg_embeddings_batch)
         # Shape (B, T, D), where B - batch size, T - longest target token-sequence length and D - model dimension
         trg_representations_batch = self.decoder(trg_embeddings_batch, src_representations_batch, trg_mask, src_mask)
-        print('trg_representations_batch', trg_representations_batch)
+        # print('trg_representations_batch', trg_representations_batch)
 
         # After this line we'll have a shape (B, T, V), where V - target vocab size, decoder generator does a simple
         # linear projection followed by softmax
@@ -222,11 +222,13 @@ class Decoder(nn.Module):
     def forward(self, trg_embeddings_batch, src_representations_batch, trg_mask, src_mask):
         # Just update the naming so as to reflect the semantics of what this var will become
         trg_representations_batch = trg_embeddings_batch
+        print('input', trg_representations_batch)
 
         # Forward pass through the decoder stack
         for decoder_layer in self.decoder_layers:
             # Target mask masks pad tokens as well as future tokens (current target token can't look forward)
             trg_representations_batch = decoder_layer(trg_representations_batch, src_representations_batch, trg_mask, src_mask)
+            print('trg_representations_batch_layer', trg_representations_batch)
 
         # Not mentioned explicitly in the paper (a consequence of using LayerNorm before instead of after the sublayer
         # check out the SublayerLogic module)
