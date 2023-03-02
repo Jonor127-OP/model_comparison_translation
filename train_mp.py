@@ -168,22 +168,22 @@ def train(finetuning):
             target = []
             predicted = []
             for src_dev, tgt_dev in dev_loader:
+
                 src_mask = src_dev != 0
                 src_mask = src_mask[:, None, None, :]
 
                 sample = model.module.generate_greedy(src_dev, src_mask, MAX_LEN)
+
+                sample = accelerator.gather(sample)
+                print('predicted_bleu', sample)
+                tgt_dev = accelerator.gather(tgt_dev)
+                print('target_bleu', tgt_dev)
 
                 target.append([ids_to_tokens(tgt_dev.tolist()[i][1:], vocabulary) for i in range(tgt_dev.shape[0])])
                 predicted.append([ids_to_tokens(sample.tolist()[i][1:], vocabulary) for i in range(tgt_dev.shape[0])])
 
             target_bleu = [BPE_to_eval(sentence) for sentence in target[0]]
             predicted_bleu = [BPE_to_eval(sentence) for sentence in predicted[0]]
-
-            print('target_bleu', target_bleu)
-            print('predicted_bleu', predicted_bleu)
-
-            predicted_bleu = accelerator.gather(predicted_bleu)
-            target_bleu = accelerator.gather(target_bleu)
 
             print('target_bleu', target_bleu)
             print('predicted_bleu', predicted_bleu)

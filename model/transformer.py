@@ -64,7 +64,6 @@ class Transformer(nn.Module):
 
     def forward(self, src_token_ids_batch, trg_token_ids_batch, src_mask, trg_mask):
         src_representations_batch = self.encode(src_token_ids_batch, src_mask)
-        print(src_representations_batch)
         trg_log_probs = self.decode(trg_token_ids_batch, src_representations_batch, trg_mask, src_mask)
         return trg_log_probs
 
@@ -105,11 +104,6 @@ class Transformer(nn.Module):
 
         while True:
             tgt_mask = self.get_masks_and_count_tokens_trg(trg_token_ids_batch)
-
-            print(tgt_mask.device)
-            print(trg_token_ids_batch.device)
-            print(src_representations_batch.device)
-            print(src_mask.device)
 
             # Shape = (B*T, V) where T is the current token-sequence length and V target vocab size
             predicted_log_distributions = self.decode(trg_token_ids_batch, src_representations_batch,
@@ -155,8 +149,7 @@ class Transformer(nn.Module):
             trg_no_look_forward_mask = torch.triu(torch.ones((1, 1, sequence_length, sequence_length)) == 1).transpose(2, 3).cuda()
         else:
             trg_no_look_forward_mask = torch.triu(torch.ones((1, 1, sequence_length, sequence_length)) == 1).transpose(2, 3)
-        print(trg_padding_mask.device)
-        print(trg_no_look_forward_mask.device)
+
         # logic AND operation (both padding mask and no-look-forward must be true to attend to a certain target token)
         trg_mask = trg_padding_mask & trg_no_look_forward_mask  # final shape = (B, 1, T, T)
 
