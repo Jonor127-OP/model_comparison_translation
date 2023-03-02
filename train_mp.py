@@ -192,6 +192,9 @@ def train(finetuning):
             predicted_bleu = accelerator.gather(predicted_bleu)
             target_bleu = accelerator.gather(target_bleu)
 
+            print('target_bleu', target_bleu)
+            print('predicted_bleu', predicted_bleu)
+
             bleu = sacrebleu.corpus_bleu(predicted_bleu, [target_bleu])
 
             bleu = bleu.score
