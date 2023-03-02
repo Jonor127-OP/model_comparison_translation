@@ -146,9 +146,7 @@ def train(finetuning):
 
             predicted_log_distributions = model(src_train, inp_tgt, src_mask, tgt_mask)
 
-            print(predicted_log_distributions.view(-1, NUM_TOKENS).device)
-            print(out_tgt.contiguous().view(-1).type(torch.LongTensor).device)
-            loss = ca(predicted_log_distributions.view(-1, NUM_TOKENS), out_tgt.contiguous().view(-1).type(torch.LongTensor))
+            loss = ca(predicted_log_distributions.view(-1, NUM_TOKENS), out_tgt.contiguous().view(-1).type(torch.LongTensor).cuda())
 
             accelerator.backward(loss)
 
