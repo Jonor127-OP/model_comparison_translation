@@ -140,7 +140,7 @@ def train(finetuning):
 
             inp_tgt, out_tgt = remove_eos(tgt_train), tgt_train[:, 1:]
 
-            tgt_mask = model.get_masks_and_count_tokens_trg(inp_tgt)
+            tgt_mask = model.module.get_masks_and_count_tokens_trg(inp_tgt)
 
             countdown += 1
 
@@ -171,7 +171,7 @@ def train(finetuning):
                 src_mask = src_dev != 0
                 src_mask = src_mask[:, None, None, :]
 
-                sample = model.generate_greedy(src_dev, src_mask, MAX_LEN)
+                sample = model.module.generate_greedy(src_dev, src_mask, MAX_LEN)
 
                 target.append([ids_to_tokens(tgt_dev.tolist()[i][1:], vocabulary) for i in range(tgt_dev.shape[0])])
                 predicted.append([ids_to_tokens(sample.tolist()[i][1:], vocabulary) for i in range(tgt_dev.shape[0])])

@@ -31,7 +31,7 @@
     "node.js.selected.package.eslint": "(autodetect)"
   }
 }]]></component>
-  <component name="RunManager" selected="Python.train">
+  <component name="RunManager" selected="Python.train_mp">
     <configuration name="train" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="model_comparison_translation" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -78,8 +78,8 @@
     </configuration>
     <recent_temporary>
       <list>
-        <item itemvalue="Python.train" />
         <item itemvalue="Python.train_mp" />
+        <item itemvalue="Python.train" />
       </list>
     </recent_temporary>
   </component>
@@ -91,7 +91,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1677608108061</updated>
-      <workItem from="1677608109621" duration="15974000" />
+      <workItem from="1677608109621" duration="18036000" />
     </task>
     <servers />
   </component>

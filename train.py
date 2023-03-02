@@ -9,14 +9,13 @@ from torch import nn
 
 from transformers.optimization import get_constant_schedule_with_warmup
 from model.optimizer import get_optimizer
-from model.utils import get_masks_and_count_tokens_trg
 from torch.utils.data import DataLoader
 
 from utils import TextSamplerDataset, MyCollate, ids_to_tokens, BPE_to_eval, epoch_time, count_parameters, remove_eos
 
 from model.transformer import Transformer
 
-import evaluate
+import sacrebleu
 
 def train(finetuning):
 
@@ -49,8 +48,6 @@ def train(finetuning):
 
     # Step 3: Prepare other training related utilities
     ce = nn.CrossEntropyLoss(ignore_index=0, label_smoothing=0.1)
-
-    metric = evaluate.load('./sacrebleu')
 
     # optimizer
     optimizer = get_optimizer(model.parameters(), LEARNING_RATE, wd=0.01)
@@ -133,7 +130,7 @@ def train(finetuning):
 
             inp_tgt, out_tgt = remove_eos(tgt_train), tgt_train[:, 1:]
 
-            tgt_mask = get_masks_and_count_tokens_trg(inp_tgt)
+            tgt_mask = model.get_masks_and_count_tokens_trg(inp_tgt)
 
             countdown += 1
 
@@ -182,10 +179,9 @@ def train(finetuning):
 
             epoch_mins, epoch_secs = epoch_time(start_time, end_time)
 
-            metric.add_batch(predictions=[predicted_bleu], references=[target_bleu])
+            bleu = sacrebleu.corpus_bleu(predicted_bleu, [target_bleu])
 
-            bleu = metric.compute()
-            bleu = bleu['score']
+            bleu = bleu.score
             print('Epoch: {0} | Time: {1}m {2}s, bleu score = {3}'.format(i, epoch_mins, epoch_secs, bleu))
 
             if bleu > best_bleu:
