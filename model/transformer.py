@@ -232,14 +232,11 @@ class Decoder(nn.Module):
     def forward(self, trg_embeddings_batch, src_representations_batch, trg_mask, src_mask):
         # Just update the naming so as to reflect the semantics of what this var will become
         trg_representations_batch = trg_embeddings_batch
-        print('input', trg_representations_batch)
-        print('input')
 
         # Forward pass through the decoder stack
         for decoder_layer in self.decoder_layers:
             # Target mask masks pad tokens as well as future tokens (current target token can't look forward)
             trg_representations_batch = decoder_layer(trg_representations_batch, src_representations_batch, trg_mask, src_mask)
-            print('trg_representations_batch_layer', trg_representations_batch)
 
         # Not mentioned explicitly in the paper (a consequence of using LayerNorm before instead of after the sublayer
         # check out the SublayerLogic module)
@@ -271,8 +268,6 @@ class DecoderLayer(nn.Module):
 
         # Self-attention MHA sublayer followed by a source-attending MHA and point-wise feed forward net sublayer
         trg_representations_batch = self.sublayers[0](trg_representations_batch, decoder_trg_self_attention)
-        print('decoder_trg_self_attention', decoder_trg_self_attention)
-        print('0', trg_representations_batch)
         trg_representations_batch = self.sublayers[1](trg_representations_batch, decoder_src_attention)
         trg_representations_batch = self.sublayers[2](trg_representations_batch, self.pointwise_net)
 
