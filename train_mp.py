@@ -142,6 +142,8 @@ def train(finetuning):
 
             tgt_mask = model.module.get_masks_and_count_tokens_trg(inp_tgt)
 
+            print('tgt_mask', tgt_mask)
+
             countdown += 1
 
             predicted_log_distributions = model(src_train, inp_tgt, src_mask, tgt_mask)

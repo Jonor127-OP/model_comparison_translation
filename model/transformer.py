@@ -64,6 +64,7 @@ class Transformer(nn.Module):
 
     def forward(self, src_token_ids_batch, trg_token_ids_batch, src_mask, trg_mask):
         src_representations_batch = self.encode(src_token_ids_batch, src_mask)
+        print(src_representations_batch)
         trg_log_probs = self.decode(trg_token_ids_batch, src_representations_batch, trg_mask, src_mask)
         return trg_log_probs
 
@@ -77,9 +78,12 @@ class Transformer(nn.Module):
 
     def decode(self, trg_token_ids_batch, src_representations_batch, trg_mask, src_mask):
         trg_embeddings_batch = self.trg_embedding(trg_token_ids_batch)  # get embedding vectors for trg token ids
+        print('trg_embeddings_batch', trg_embeddings_batch)
         trg_embeddings_batch = self.trg_pos_embedding(trg_embeddings_batch)  # add positional embedding
+        print('trg_embeddings_batch', trg_embeddings_batch)
         # Shape (B, T, D), where B - batch size, T - longest target token-sequence length and D - model dimension
         trg_representations_batch = self.decoder(trg_embeddings_batch, src_representations_batch, trg_mask, src_mask)
+        print('trg_representations_batch', trg_representations_batch)
 
         # After this line we'll have a shape (B, T, V), where V - target vocab size, decoder generator does a simple
         # linear projection followed by softmax
@@ -97,7 +101,7 @@ class Transformer(nn.Module):
         is_decoded = [False] * src_representations_batch.shape[0]
 
         while True:
-            tgt_mask = get_masks_and_count_tokens_trg(trg_token_ids_batch).cuda()
+            tgt_mask = self.get_masks_and_count_tokens_trg(trg_token_ids_batch)
 
             print(tgt_mask.device)
             print(trg_token_ids_batch.device)
