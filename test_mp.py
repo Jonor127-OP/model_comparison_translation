@@ -94,3 +94,6 @@ def test():
     bleu = bleu.score
 
     print('BLEU test set', bleu)
+
+if __name__ == '__main__':
+    test()
