@@ -38,7 +38,7 @@ def train(finetuning):
     # constants
 
     EPOCHS = 400
-    BATCH_SIZE = 10
+    BATCH_SIZE = 2
     LEARNING_RATE = 5e-4
     GENERATE_EVERY  = 1
     MAX_LEN = 30
@@ -109,10 +109,10 @@ def train(finetuning):
         Y_dev = Y_dev[0:60]
 
     train_dataset = TextSamplerDataset(X_dev, Y_dev, MAX_LEN)
-    train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=4, shuffle=True,
+    train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=2, shuffle=True,
                            pin_memory=True, collate_fn=MyCollate(pad_idx=0))
     dev_dataset = TextSamplerDataset(X_dev, Y_dev, MAX_LEN)
-    dev_loader  = DataLoader(dev_dataset, batch_size=BATCH_SIZE, num_workers=4, collate_fn=MyCollate(pad_idx=0))
+    dev_loader  = DataLoader(dev_dataset, batch_size=BATCH_SIZE, num_workers=2, collate_fn=MyCollate(pad_idx=0))
 
     model, optimizer, train_loader, dev_loader = accelerator.prepare(model, optimizer, train_loader, dev_loader)
 
@@ -145,6 +145,8 @@ def train(finetuning):
             countdown += 1
 
             predicted_log_distributions = model(src_train, inp_tgt, src_mask, tgt_mask)
+
+            print(predicted_log_distributions.view(-1, NUM_TOKENS))
 
             loss = ca(predicted_log_distributions.view(-1, NUM_TOKENS), out_tgt.contiguous().view(-1).type(torch.LongTensor).cuda())
 

@@ -98,6 +98,12 @@ class Transformer(nn.Module):
 
         while True:
             tgt_mask = get_masks_and_count_tokens_trg(trg_token_ids_batch)
+
+            print(tgt_mask.device)
+            print(trg_token_ids_batch.device)
+            print(src_representations_batch.device)
+            print(src_mask.device)
+
             # Shape = (B*T, V) where T is the current token-sequence length and V target vocab size
             predicted_log_distributions = self.decode(trg_token_ids_batch, src_representations_batch,
                                                                       tgt_mask, src_mask)
