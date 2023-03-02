@@ -134,6 +134,8 @@ def train(finetuning):
 
             countdown += 1
 
+            print('inp_tgt', inp_tgt)
+
             predicted_log_distributions = model(src_train, inp_tgt, src_mask, tgt_mask)
 
             loss = ce(predicted_log_distributions.view(-1, NUM_TOKENS), out_tgt.contiguous().view(-1).type(torch.LongTensor))

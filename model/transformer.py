@@ -271,11 +271,10 @@ class DecoderLayer(nn.Module):
 
         # Self-attention MHA sublayer followed by a source-attending MHA and point-wise feed forward net sublayer
         trg_representations_batch = self.sublayers[0](trg_representations_batch, decoder_trg_self_attention)
+        print('decoder_trg_self_attention', decoder_trg_self_attention)
         print('0', trg_representations_batch)
         trg_representations_batch = self.sublayers[1](trg_representations_batch, decoder_src_attention)
-        print('1', trg_representations_batch)
         trg_representations_batch = self.sublayers[2](trg_representations_batch, self.pointwise_net)
-        print('2', trg_representations_batch)
 
 
         return trg_representations_batch
