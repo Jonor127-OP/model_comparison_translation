@@ -23,9 +23,9 @@ import sacrebleu
 
 def train(finetuning):
 
-    ddp_kwargs_1 = DistributedDataParallelKwargs(find_unused_parameters=True)
-    ddp_kwargs_2 = InitProcessGroupKwargs(timeout=datetime.timedelta(seconds=5400))
-    accelerator = Accelerator(kwargs_handlers=[ddp_kwargs_1, ddp_kwargs_2])
+    # ddp_kwargs_1 = DistributedDataParallelKwargs(find_unused_parameters=True)
+    ddp_kwargs_1 = InitProcessGroupKwargs(timeout=datetime.timedelta(seconds=5400))
+    accelerator = Accelerator(kwargs_handlers=[ddp_kwargs_1])
 
     with open('dataset/nl/wmt17_en_de/vocabulary.json', 'r') as f:
         vocabulary = json.load(f)
@@ -146,6 +146,8 @@ def train(finetuning):
 
             predicted_log_distributions = model(src_train, inp_tgt, src_mask, tgt_mask)
 
+            print(predicted_log_distributions.view(-1, NUM_TOKENS).device)
+            print(out_tgt.contiguous().view(-1).type(torch.LongTensor).device)
             loss = ca(predicted_log_distributions.view(-1, NUM_TOKENS), out_tgt.contiguous().view(-1).type(torch.LongTensor))
 
             accelerator.backward(loss)
