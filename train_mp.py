@@ -186,16 +186,19 @@ def train(finetuning):
             target_bleu = [BPE_to_eval(sentence) for sentence in target[0]]
             predicted_bleu = [BPE_to_eval(sentence) for sentence in predicted[0]]
 
+            print('target_bleu', target_bleu)
+            print('predicted_bleu', predicted_bleu)
+
             predicted_bleu = accelerator.gather(predicted_bleu)
             target_bleu = accelerator.gather(target_bleu)
-
-            end_time = time.time()
-
-            epoch_mins, epoch_secs = epoch_time(start_time, end_time)
 
             bleu = sacrebleu.corpus_bleu(predicted_bleu, [target_bleu])
 
             bleu = bleu.score
+
+            end_time = time.time()
+
+            epoch_mins, epoch_secs = epoch_time(start_time, end_time)
 
             print('Epoch: {0} | Time: {1}m {2}s, bleu score = {3}'.format(i, epoch_mins, epoch_secs, bleu))
 
