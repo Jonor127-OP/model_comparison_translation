@@ -40,7 +40,7 @@ def train(finetuning):
     EPOCHS = 20
     BATCH_SIZE = 156
     LEARNING_RATE = 5e-4
-    GENERATE_EVERY  = 1
+    GENERATE_EVERY  = 10
     MAX_LEN = 100
     WARMUP_STEP = 20
 
@@ -99,14 +99,14 @@ def train(finetuning):
         X_dev = X_dev.decode(encoding='utf-8')
         X_dev = X_dev.split('\n')
         X_dev = [np.array([int(x) for x in line.split()]) for line in X_dev]
-        X_dev = X_dev[0:1000]
+        X_dev = X_dev[0:500]
 
     with gzip.open('dataset/nl/wmt17_en_de/valid.de.ids.gz', 'r') as file:
         Y_dev = file.read()
         Y_dev = Y_dev.decode(encoding='utf-8')
         Y_dev = Y_dev.split('\n')
         Y_dev = [np.array([int(x) for x in line.split()]) for line in Y_dev]
-        Y_dev = Y_dev[0:1000]
+        Y_dev = Y_dev[0:500]
 
     train_dataset = TextSamplerDataset(X_dev, Y_dev, MAX_LEN)
     train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=2, shuffle=True,
