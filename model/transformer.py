@@ -80,7 +80,7 @@ class Transformer(nn.Module):
         trg_embeddings_batch = self.trg_embedding(trg_token_ids_batch)  # get embedding vectors for trg token ids
         print('trg_embeddings_batch', trg_embeddings_batch)
         trg_embeddings_batch = self.trg_pos_embedding(trg_embeddings_batch)  # add positional embedding
-        print('trg_embeddings_batch', trg_embeddings_batch)
+        print('trg_embeddings_batch_pos', trg_embeddings_batch)
         # Shape (B, T, D), where B - batch size, T - longest target token-sequence length and D - model dimension
         trg_representations_batch = self.decoder(trg_embeddings_batch, src_representations_batch, trg_mask, src_mask)
         print('trg_representations_batch', trg_representations_batch)
@@ -133,7 +133,7 @@ class Transformer(nn.Module):
 
             # Prepare the input for the next iteration (merge old token ids with the new column of most probable token ids)
             trg_token_ids_batch = torch.cat((trg_token_ids_batch, torch.unsqueeze(
-                torch.tensor(most_probable_last_token_indices), 1)), 1)
+                torch.tensor(most_probable_last_token_indices).cuda(), 1)), 1)
 
         return trg_token_ids_batch
     def get_masks_and_count_tokens_trg(self, trg_token_ids_batch, pad_token_id=0):
