@@ -12,7 +12,7 @@
 
 #SBATCH --ntasks=1
 
-#SBATCH --gres=gpu:2
+#SBATCH --gres=gpu:8
 
 #SBATCH --cpus-per-task=40
 

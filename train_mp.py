@@ -37,12 +37,12 @@ def train(finetuning):
 
     # constants
 
-    EPOCHS = 400
-    BATCH_SIZE = 2
-    LEARNING_RATE = 1e-4
+    EPOCHS = 40
+    BATCH_SIZE = 256
+    LEARNING_RATE = 5e-4
     GENERATE_EVERY  = 1
-    MAX_LEN = 30
-    WARMUP_STEP = 1000
+    MAX_LEN = 100
+    WARMUP_STEP = 4000
 
     # Step 2: Prepare the model (original transformer) and push to GPU
     model = Transformer(
@@ -89,24 +89,24 @@ def train(finetuning):
     #
     #
     # train_dataset = TextSamplerDataset(X_train, Y_train, MAX_LEN)
-    # train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=2, shuffle=True,
+    # train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=8, shuffle=True,
     #                        pin_memory=True, collate_fn=MyCollate(pad_idx=0))
     # dev_dataset = TextSamplerDataset(X_dev, Y_dev, MAX_LEN)
-    # dev_loader  = DataLoader(dev_dataset, batch_size=BATCH_SIZE, num_workers=2, collate_fn=MyCollate(pad_idx=0))
+    # dev_loader  = DataLoader(dev_dataset, batch_size=BATCH_SIZE, num_workers=8, collate_fn=MyCollate(pad_idx=0))
 
     with gzip.open('dataset/nl/wmt17_en_de/valid.en.ids.gz', 'r') as file:
         X_dev = file.read()
         X_dev = X_dev.decode(encoding='utf-8')
         X_dev = X_dev.split('\n')
         X_dev = [np.array([int(x) for x in line.split()]) for line in X_dev]
-        X_dev = X_dev[0:2]
+        X_dev = X_dev[0:2000]
 
     with gzip.open('dataset/nl/wmt17_en_de/valid.de.ids.gz', 'r') as file:
         Y_dev = file.read()
         Y_dev = Y_dev.decode(encoding='utf-8')
         Y_dev = Y_dev.split('\n')
         Y_dev = [np.array([int(x) for x in line.split()]) for line in Y_dev]
-        Y_dev = Y_dev[0:2]
+        Y_dev = Y_dev[0:2000]
 
     train_dataset = TextSamplerDataset(X_dev, Y_dev, MAX_LEN)
     train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=2, shuffle=True,
