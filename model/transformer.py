@@ -265,15 +265,18 @@ class DecoderLayer(nn.Module):
         # The inputs which are not passed into lambdas are "cached" here that's why the thing works.
         srb = src_representations_batch  # simple/short alias
         decoder_trg_self_attention = lambda trb: self.trg_multi_headed_attention(query=trb, key=trb, value=trb, mask=trg_mask)
-        print('decoder_trg_self_attention', decoder_trg_self_attention)
+
         decoder_src_attention = lambda trb: self.src_multi_headed_attention(query=trb, key=srb, value=srb, mask=src_mask)
-        print('decoder_src_attention', decoder_src_attention)
+
 
         # Self-attention MHA sublayer followed by a source-attending MHA and point-wise feed forward net sublayer
         trg_representations_batch = self.sublayers[0](trg_representations_batch, decoder_trg_self_attention)
+        print('0', trg_representations_batch)
         trg_representations_batch = self.sublayers[1](trg_representations_batch, decoder_src_attention)
+        print('1', trg_representations_batch)
         trg_representations_batch = self.sublayers[2](trg_representations_batch, self.pointwise_net)
-        print('trg_representations_batch', trg_representations_batch)
+        print('2', trg_representations_batch)
+
 
         return trg_representations_batch
 
