@@ -52,14 +52,14 @@ def test():
         X_test = X_test.decode(encoding='utf-8')
         X_test = X_test.split('\n')
         X_test = [np.array([int(x) for x in line.split()]) for line in X_test]
-        X_test = X_test[0:200]
+        # X_test = X_test[0:200]
 
     with gzip.open('dataset/nl/wmt17_en_de/test.de.ids.gz', 'r') as file:
         Y_test = file.read()
         Y_test = Y_test.decode(encoding='utf-8')
         Y_test = Y_test.split('\n')
         Y_test = [np.array([int(x) for x in line.split()]) for line in Y_test]
-        X_test = X_test[0:200]
+        # X_test = X_test[0:200]
 
     test_dataset = TextSamplerDataset(X_test, Y_test, MAX_LEN)
     test_loader  = DataLoader(test_dataset, batch_size=BATCH_SIZE, num_workers=4, collate_fn=MyCollate(pad_idx=0))
