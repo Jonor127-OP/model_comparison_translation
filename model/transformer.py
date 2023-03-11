@@ -109,11 +109,7 @@ class Transformer(nn.Module):
             predicted_log_distributions = self.decode(trg_token_ids_batch, src_representations_batch,
                                                                       tgt_mask, src_mask)
 
-            print(predicted_log_distributions.shape)
-
             current_len = predicted_log_distributions.shape[1] + 1
-
-            print(current_len)
 
             # Extract only the indices of last token for every target sentence (we take every T-th token)
             predicted_log_distributions = predicted_log_distributions[:, -1, :]
@@ -130,7 +126,6 @@ class Transformer(nn.Module):
                     is_decoded[idx] = True
 
             if all(is_decoded) or current_len == MAX_LEN:
-                print('fin decodage')
                 break
 
             if cuda:
