@@ -5,6 +5,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dataset/nl/mosesdecoder/contrib/arrow-pipelines/pcl/components/wrappers/cleanup/cleanup.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataset/nl/mosesdecoder/contrib/arrow-pipelines/pcl/components/wrappers/cleanup/cleanup.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/dataset/nl/mosesdecoder/contrib/arrow-pipelines/pcl/components/wrappers/data_split/data_split.py" beforeDir="false" afterPath="$PROJECT_DIR$/dataset/nl/mosesdecoder/contrib/arrow-pipelines/pcl/components/wrappers/data_split/data_split.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/transformer.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/transformer.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -93,7 +94,7 @@
       <option name="number" value="Default" />
       <option name="presentableId" value="Default" />
       <updated>1677608108061</updated>
-      <workItem from="1677608109621" duration="47021000" />
+      <workItem from="1677608109621" duration="47062000" />
     </task>
     <servers />
   </component>

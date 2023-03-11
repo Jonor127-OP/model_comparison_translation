@@ -109,6 +109,8 @@ class Transformer(nn.Module):
             predicted_log_distributions = self.decode(trg_token_ids_batch, src_representations_batch,
                                                                       tgt_mask, src_mask)
 
+            print(predicted_log_distributions.shape)
+
             current_len = predicted_log_distributions.shape[1] + 1
 
             print(current_len)
