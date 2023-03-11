@@ -175,6 +175,7 @@ def train(finetuning):
                 src_mask = src_mask[:, None, None, :]
 
                 sample = model.module.generate_greedy(src_dev, src_mask, MAX_LEN)
+                print(sample)
 
                 sample = accelerator.gather(sample)
                 tgt_dev = accelerator.gather(tgt_dev)
