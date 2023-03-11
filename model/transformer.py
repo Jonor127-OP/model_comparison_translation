@@ -111,6 +111,8 @@ class Transformer(nn.Module):
 
             current_len = predicted_log_distributions.shape[1] + 1
 
+            print(current_len)
+
             # Extract only the indices of last token for every target sentence (we take every T-th token)
             predicted_log_distributions = predicted_log_distributions[:, -1, :]
 
