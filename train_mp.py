@@ -177,8 +177,8 @@ def train(finetuning):
                 sample = model.module.generate_greedy(src_dev, src_mask, MAX_LEN)
                 print(sample)
 
-                sample = accelerator.gather(sample)
-                tgt_dev = accelerator.gather(tgt_dev)
+                # sample = accelerator.gather(sample)
+                # tgt_dev = accelerator.gather(tgt_dev)
 
                 target.append([ids_to_tokens(tgt_dev.tolist()[i][1:], vocabulary) for i in range(tgt_dev.shape[0])])
                 predicted.append([ids_to_tokens(sample.tolist()[i][1:], vocabulary) for i in range(tgt_dev.shape[0])])
