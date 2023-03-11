@@ -101,14 +101,14 @@ def train(finetuning):
         X_dev = X_dev.decode(encoding='utf-8')
         X_dev = X_dev.split('\n')
         X_dev = [np.array([int(x) for x in line.split()]) for line in X_dev]
-        X_dev = X_dev[0:156]
+        X_dev = X_dev[0:1000]
 
     with gzip.open('dataset/nl/wmt17_en_de/valid.de.ids.gz', 'r') as file:
         Y_dev = file.read()
         Y_dev = Y_dev.decode(encoding='utf-8')
         Y_dev = Y_dev.split('\n')
         Y_dev = [np.array([int(x) for x in line.split()]) for line in Y_dev]
-        Y_dev = Y_dev[0:156]
+        Y_dev = Y_dev[0:1000]
 
     train_dataset = TextSamplerDataset(X_dev, Y_dev, MAX_LEN)
     train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=2, shuffle=True,
@@ -175,15 +175,12 @@ def train(finetuning):
                 src_mask = src_mask[:, None, None, :]
 
                 sample = model.module.generate_greedy(src_dev, src_mask, MAX_LEN)
-                print(sample)
 
                 # sample = accelerator.gather(sample)
                 # tgt_dev = accelerator.gather(tgt_dev)
 
                 target.append([ids_to_tokens(tgt_dev.tolist()[i][1:], vocabulary) for i in range(tgt_dev.shape[0])])
                 predicted.append([ids_to_tokens(sample.tolist()[i][1:], vocabulary) for i in range(tgt_dev.shape[0])])
-                print([ids_to_tokens(tgt_dev.tolist()[i][1:], vocabulary) for i in range(tgt_dev.shape[0])])
-                print([ids_to_tokens(sample.tolist()[i][1:], vocabulary) for i in range(tgt_dev.shape[0])])
 
             target_bleu = [BPE_to_eval(sentence) for sentence in target[0]]
             predicted_bleu = [BPE_to_eval(sentence) for sentence in predicted[0]]
