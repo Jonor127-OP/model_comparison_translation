@@ -130,6 +130,7 @@ class Transformer(nn.Module):
                     is_decoded[idx] = True
 
             if all(is_decoded) or current_len == MAX_LEN:
+                print('fin decodage')
                 break
 
             if cuda:
