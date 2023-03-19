@@ -41,10 +41,10 @@ def train(finetuning):
 
     EPOCHS = 40
     BATCH_SIZE = 156
-    LEARNING_RATE = 1e-4
-    GENERATE_EVERY  = 60
+    LEARNING_RATE = 4e-4
+    GENERATE_EVERY  = 5
     MAX_LEN = 100
-    WARMUP_STEP = 4000
+    WARMUP_STEP = 20000
 
     # Step 2: Prepare the model (original transformer) and push to GPU
     model = Transformer(
