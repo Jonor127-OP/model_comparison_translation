@@ -150,6 +150,8 @@ def train(finetuning):
 
             loss = ca(predicted_log_distributions.view(-1, NUM_TOKENS), out_tgt.contiguous().view(-1).type(torch.LongTensor).cuda())
 
+            print(loss)
+
             accelerator.backward(loss)
 
             torch.nn.utils.clip_grad_norm_(model.parameters(), 0.01)
