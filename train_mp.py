@@ -141,12 +141,16 @@ def train(finetuning):
             src_mask = src_mask[:, None, None, :]
 
             inp_tgt, out_tgt = remove_eos(tgt_train), tgt_train[:, 1:]
+            print('inp_tgt', inp_tgt)
+            print('out_tgt', out_tgt)
 
             tgt_mask = model.module.get_masks_and_count_tokens_trg(inp_tgt)
 
             countdown += 1
 
             predicted_log_distributions = model(src_train, inp_tgt, src_mask, tgt_mask)
+
+            print('predicted_log_distributions', predicted_log_distributions)
 
             loss = ca(predicted_log_distributions.view(-1, NUM_TOKENS), out_tgt.contiguous().view(-1).type(torch.LongTensor).cuda())
 
