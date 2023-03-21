@@ -41,7 +41,7 @@ def train(finetuning):
 
     EPOCHS = 40
     BATCH_SIZE = 156
-    LEARNING_RATE = 4e-4
+    LEARNING_RATE = 1e-4
     GENERATE_EVERY  = 5
     MAX_LEN = 100
     WARMUP_STEP = 20000
