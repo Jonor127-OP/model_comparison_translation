@@ -141,8 +141,8 @@ def train(finetuning):
             src_mask = src_mask[:, None, None, :]
 
             inp_tgt, out_tgt = remove_eos(tgt_train), tgt_train[:, 1:]
-            # print('inp_tgt', inp_tgt)
-            # print('out_tgt', out_tgt)
+            print('inp_tgt', inp_tgt)
+            print('out_tgt', out_tgt)
 
             tgt_mask = model.module.get_masks_and_count_tokens_trg(inp_tgt)
 
