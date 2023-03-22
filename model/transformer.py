@@ -70,19 +70,23 @@ class Transformer(nn.Module):
     # Modularized into encode/decode functions for optimizing the decoding/translation process (see translation script)
     def encode(self, src_token_ids_batch, src_mask):
         src_embeddings_batch = self.src_embedding(src_token_ids_batch)  # get embedding vectors for src token ids
+        print(src_embeddings_batch)
         src_embeddings_batch = self.src_pos_embedding(src_embeddings_batch)  # add positional embedding
         src_representations_batch = self.encoder(src_embeddings_batch, src_mask)  # forward pass through the encoder
+        print('src_representations_batch', src_representations_batch)
 
         return src_representations_batch
 
     def decode(self, trg_token_ids_batch, src_representations_batch, trg_mask, src_mask):
 
         trg_embeddings_batch = self.trg_embedding(trg_token_ids_batch)  # get embedding vectors for trg token ids
+        print('trg_embeddings_batch', trg_embeddings_batch)
 
         trg_embeddings_batch = self.trg_pos_embedding(trg_embeddings_batch)  # add positional embedding
 
         # Shape (B, T, D), where B - batch size, T - longest target token-sequence length and D - model dimension
         trg_representations_batch = self.decoder(trg_embeddings_batch, src_representations_batch, trg_mask, src_mask)
+        print('trg_representations_batch', trg_representations_batch)
 
         # After this line we'll have a shape (B, T, V), where V - target vocab size, decoder generator does a simple
         # linear projection followed by softmax
