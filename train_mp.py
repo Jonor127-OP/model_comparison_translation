@@ -136,6 +136,7 @@ def train(finetuning):
             break
 
         countdown = 0
+        count_loss = 0
 
         for src_train, tgt_train in train_loader:
 
@@ -156,8 +157,10 @@ def train(finetuning):
 
             loss = ca(predicted_log_distributions.view(-1, NUM_TOKENS), out_tgt.contiguous().view(-1).type(torch.LongTensor).cuda())
 
-            print(loss.item)
-            print(torch.isnan(loss).item())
+            count_loss += loss.item()
+
+            print(loss.item())
+
             if torch.isnan(loss).item():
                 breakaction = True
                 break
@@ -170,7 +173,7 @@ def train(finetuning):
             optimizer.zero_grad()
             scheduler.step()
 
-        print('loss =', loss.item())
+        print('loss =', count_loss)
 
         # torch.save(model.state_dict(),
         #            'output/model_seq2seq_each_epoch.pt'
