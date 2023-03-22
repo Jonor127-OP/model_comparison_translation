@@ -154,7 +154,9 @@ def train(finetuning):
 
             loss = ca(predicted_log_distributions.view(-1, NUM_TOKENS), out_tgt.contiguous().view(-1).type(torch.LongTensor).cuda())
 
-            print(loss)
+            print(loss.item)
+            if torch.isnan(loss)[0]:
+                break
 
             accelerator.backward(loss)
 
