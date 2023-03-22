@@ -127,11 +127,13 @@ def train(finetuning):
         )
 
     best_bleu = 0
-
+    breakaction = False
     # training
     for i in tqdm.tqdm(range(EPOCHS), desc='training'):
         start_time = time.time()
         model.train()
+        if breakaction:
+            break
 
         countdown = 0
 
@@ -157,6 +159,7 @@ def train(finetuning):
             print(loss.item)
             print(torch.isnan(loss).item())
             if torch.isnan(loss).item():
+                breakaction = True
                 break
 
             accelerator.backward(loss)
