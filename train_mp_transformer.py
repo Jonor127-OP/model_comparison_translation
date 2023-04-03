@@ -197,8 +197,8 @@ def train(finetuning):
                 target.append([ids_to_tokens(tgt_dev.tolist()[i][1:], vocabulary) for i in range(tgt_dev.shape[0])])
                 predicted.append([ids_to_tokens(sample.tolist()[i][1:], vocabulary) for i in range(tgt_dev.shape[0])])
 
-            target_bleu = [BPE_to_eval(sentence) for sentence in target[0]]
-            predicted_bleu = [BPE_to_eval(sentence) for sentence in predicted[0]]
+            target_bleu = [BPE_to_eval(sentence) for sentence in target]
+            predicted_bleu = [BPE_to_eval(sentence) for sentence in predicted]
 
             print('target_bleu', target_bleu)
             print('predicted_bleu', predicted_bleu)
