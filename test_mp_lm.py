@@ -24,7 +24,7 @@ def test():
     ddp_kwargs_1 = InitProcessGroupKwargs(timeout=datetime.timedelta(seconds=5400))
     accelerator = Accelerator(kwargs_handlers=[ddp_kwargs_1])
 
-    with open('dataset/nl/wmt17_en_de/vocabulary.json', 'r') as f:
+    with open('dataset/nl/lm/wmt17_en_de/vocabulary.json', 'r') as f:
         vocabulary = json.load(f)
 
     reverse_vocab = {id: token for token, id in vocabulary.items()}

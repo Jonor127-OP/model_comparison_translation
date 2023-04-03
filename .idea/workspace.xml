@@ -2,40 +2,7 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="24cbd687-f852-49c9-b2a7-9816ec256288" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/dataset/nl/lm/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dataset/nl/lm/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dataset/nl/lm/build_dictionnary.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dataset/nl/lm/prepare-iwslt14.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dataset/nl/lm/prepare-iwslt17-multilingual.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dataset/nl/lm/prepare-wmt14en2de.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dataset/nl/lm/prepare-wmt14en2fr.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dataset/nl/lm/tokenized_to_ids.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dataset/nl/seq2seq/README.md" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dataset/nl/seq2seq/__init__.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dataset/nl/seq2seq/build_dictionnary.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dataset/nl/seq2seq/merge_dict.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dataset/nl/seq2seq/prepare-iwslt14.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dataset/nl/seq2seq/prepare-iwslt17-multilingual.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dataset/nl/seq2seq/prepare-wmt14en2de.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dataset/nl/seq2seq/prepare-wmt14en2fr.sh" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/dataset/nl/seq2seq/tokenized_to_ids.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/nl/README.md" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/nl/__init__.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/nl/build_dictionnary.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/nl/merge_dict.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/nl/prepare-iwslt14.sh" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/nl/prepare-iwslt17-multilingual.sh" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/nl/prepare-wmt14en2de.sh" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/nl/prepare-wmt14en2fr.sh" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/dataset/nl/tokenized_to_ids.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/model/transformer.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/transformer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test.sh" beforeDir="false" afterPath="$PROJECT_DIR$/test_transformer.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/test_mp.py" beforeDir="false" afterPath="$PROJECT_DIR$/test_mp_transformer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train.py" beforeDir="false" afterPath="$PROJECT_DIR$/train_transformer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train.sh" beforeDir="false" afterPath="$PROJECT_DIR$/train_transformer.sh" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/train_mp.py" beforeDir="false" afterPath="$PROJECT_DIR$/train_mp_transformer.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/utils.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -172,7 +139,7 @@
       <option name="presentableId" value="Default" />
       <updated>1677608108061</updated>
       <workItem from="1677608109621" duration="51109000" />
-      <workItem from="1679054793187" duration="62896000" />
+      <workItem from="1679054793187" duration="64346000" />
     </task>
     <servers />
   </component>
