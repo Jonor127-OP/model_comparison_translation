@@ -29,4 +29,4 @@ nvidia-smi
 # This will create a config file on your server
 
 
-srun accelerate launch --multi_gpu test_mp.py
+srun accelerate launch --multi_gpu test_mp_transformer.py

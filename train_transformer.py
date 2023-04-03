@@ -11,7 +11,7 @@ from transformers.optimization import get_constant_schedule_with_warmup
 from model.optimizer import get_optimizer
 from torch.utils.data import DataLoader
 
-from utils import TextSamplerDataset, MyCollate, ids_to_tokens, BPE_to_eval, epoch_time, count_parameters, remove_eos
+from utils import TextSamplerDatasetS2S, MyCollateS2S, ids_to_tokens, BPE_to_eval, epoch_time, count_parameters, remove_eos
 
 from model.transformer import Transformer
 
@@ -19,7 +19,7 @@ import sacrebleu
 
 def train(finetuning):
 
-    with open('dataset/nl/wmt17_en_de/vocabulary.json', 'r') as f:
+    with open('dataset/nl/seq2seq/wmt17_en_de/vocabulary.json', 'r') as f:
         vocabulary = json.load(f)
 
     reverse_vocab = {id: token for token, id in vocabulary.items()}
@@ -81,36 +81,36 @@ def train(finetuning):
     #
     #
     # train_dataset = TextSamplerDataset(X_train, Y_train, MAX_LEN)
-    # train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=4, shuffle=True,
+    # train_loader  = DataLoader(train_dataset, batch_size = 1, num_workers=1, shuffle=True,
     #                        pin_memory=True, collate_fn=MyCollate(pad_idx=0))
     # dev_dataset = TextSamplerDataset(X_dev, Y_dev, MAX_LEN)
     # dev_loader  = DataLoader(dev_dataset, batch_size=1)
 
-    with gzip.open('dataset/nl/wmt17_en_de/valid.en.ids.gz', 'r') as file:
+    with gzip.open('dataset/nl/seq2seq/wmt17_en_de/valid.en.ids.gz', 'r') as file:
         X_dev = file.read()
         X_dev = X_dev.decode(encoding='utf-8')
         X_dev = X_dev.split('\n')
         X_dev = [np.array([int(x) for x in line.split()]) for line in X_dev]
-        X_dev = X_dev[0:2]
+        X_dev = X_dev[0:10]
 
-    with gzip.open('dataset/nl/wmt17_en_de/valid.de.ids.gz', 'r') as file:
+    with gzip.open('dataset/nl/seq2seq/wmt17_en_de/valid.de.ids.gz', 'r') as file:
         Y_dev = file.read()
         Y_dev = Y_dev.decode(encoding='utf-8')
         Y_dev = Y_dev.split('\n')
         Y_dev = [np.array([int(x) for x in line.split()]) for line in Y_dev]
-        Y_dev = Y_dev[0:2]
+        Y_dev = Y_dev[0:10]
 
-    train_dataset = TextSamplerDataset(X_dev, Y_dev, MAX_LEN)
+    train_dataset = TextSamplerDatasetS2S(X_dev, Y_dev, MAX_LEN)
     train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=1, shuffle=True,
-                           pin_memory=True, collate_fn=MyCollate(pad_idx=0))
-    dev_dataset = TextSamplerDataset(X_dev, Y_dev, MAX_LEN)
-    dev_loader  = DataLoader(dev_dataset, batch_size = 2, num_workers=1, collate_fn=MyCollate(pad_idx=0))
+                           pin_memory=True, collate_fn=MyCollateS2S(pad_idx=0))
+    dev_dataset = TextSamplerDatasetS2S(X_dev, Y_dev, MAX_LEN)
+    dev_loader  = DataLoader(dev_dataset, batch_size = 2, num_workers=1, collate_fn=MyCollateS2S(pad_idx=0))
 
     if finetuning:
         print('finetune')
         model.load_state_dict(
             torch.load(
-                'output/model_seq2seq.pt',
+                'output/model_lm.pt',
             ),
         )
 
@@ -163,7 +163,8 @@ def train(finetuning):
                 src_mask = src_dev != 0
                 src_mask = src_mask[:, None, None, :]
 
-                sample = model.generate_greedy(src_dev, src_mask, MAX_LEN)
+                sample = model.generate_greedy(src_dev, src_mask, MAX_LEN, cuda=False)
+                # sample = model.generate_beam_search(src_dev, src_mask, MAX_LEN, beam_size=2, cuda=False)
 
                 target.append([ids_to_tokens(tgt_dev.tolist()[i][1:], vocabulary) for i in range(tgt_dev.shape[0])])
                 predicted.append([ids_to_tokens(sample.tolist()[i][1:], vocabulary) for i in range(tgt_dev.shape[0])])
@@ -187,7 +188,7 @@ def train(finetuning):
             if bleu > best_bleu:
                 best_bleu = bleu
                 torch.save(model.state_dict(),
-                           'output/model_seq2seq.pt'
+                           'output/model_lm.pt'
                            )
 
                 torch.save(optimizer.state_dict(), 'output/optim.bin')

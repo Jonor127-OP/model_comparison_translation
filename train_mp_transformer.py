@@ -13,7 +13,7 @@ from model.optimizer import get_optimizer
 
 from torch.utils.data import DataLoader
 
-from utils import TextSamplerDataset, MyCollate, ids_to_tokens, BPE_to_eval, epoch_time, count_parameters, remove_eos
+from utils import TextSamplerDatasetS2S, MyCollateS2S, ids_to_tokens, BPE_to_eval, epoch_time, count_parameters, remove_eos
 
 from model.transformer import Transformer
 
@@ -65,36 +65,36 @@ def train(finetuning):
 
     print('number of parameters:', count_parameters(model))
 
-    with gzip.open('dataset/nl/wmt17_en_de/train.en.ids.gz', 'r') as file:
+    with gzip.open('dataset/nl/seq2seq/wmt17_en_de/train.en.ids.gz', 'r') as file:
         X_train = file.read()
         X_train = X_train.decode(encoding='utf-8')
         X_train = X_train.split('\n')
-        X_train = [np.array([int(x) for x in line.split()]) for line in X_train]
+        X_train = [np.array([int(x) for x in line.split()]) for line in X_train if line != '']
 
-    with gzip.open('dataset/nl/wmt17_en_de/train.de.ids.gz', 'r') as file:
+    with gzip.open('dataset/nl/seq2seq/wmt17_en_de/train.de.ids.gz', 'r') as file:
         Y_train = file.read()
         Y_train = Y_train.decode(encoding='utf-8')
         Y_train = Y_train.split('\n')
-        Y_train = [np.array([int(x) for x in line.split()]) for line in Y_train]
+        Y_train = [np.array([int(x) for x in line.split()]) for line in Y_train if line != '']
 
-    with gzip.open('dataset/nl/wmt17_en_de/valid.en.ids.gz', 'r') as file:
+    with gzip.open('dataset/nl/seq2seq/wmt17_en_de/valid.en.ids.gz', 'r') as file:
         X_dev = file.read()
         X_dev = X_dev.decode(encoding='utf-8')
         X_dev = X_dev.split('\n')
-        X_dev = [np.array([int(x) for x in line.split()]) for line in X_dev]
+        X_dev = [np.array([int(x) for x in line.split()]) for line in X_dev if line != '']
 
-    with gzip.open('dataset/nl/wmt17_en_de/valid.de.ids.gz', 'r') as file:
+    with gzip.open('dataset/nl/seq2seq/wmt17_en_de/valid.de.ids.gz', 'r') as file:
         Y_dev = file.read()
         Y_dev = Y_dev.decode(encoding='utf-8')
         Y_dev = Y_dev.split('\n')
-        Y_dev = [np.array([int(x) for x in line.split()]) for line in Y_dev]
+        Y_dev = [np.array([int(x) for x in line.split()]) for line in Y_dev if line != '']
 
 
-    train_dataset = TextSamplerDataset(X_train, Y_train, MAX_LEN)
+    train_dataset = TextSamplerDatasetS2S(X_train, Y_train, MAX_LEN)
     train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=8, shuffle=True,
-                           pin_memory=True, collate_fn=MyCollate(pad_idx=0))
-    dev_dataset = TextSamplerDataset(X_dev, Y_dev, MAX_LEN)
-    dev_loader  = DataLoader(dev_dataset, batch_size=BATCH_SIZE, num_workers=8, collate_fn=MyCollate(pad_idx=0))
+                           pin_memory=True, collate_fn=MyCollateS2S(pad_idx=0))
+    dev_dataset = TextSamplerDatasetS2S(X_dev, Y_dev, MAX_LEN)
+    dev_loader  = DataLoader(dev_dataset, batch_size=BATCH_SIZE, num_workers=8, collate_fn=MyCollateS2S(pad_idx=0))
 
     # with gzip.open('dataset/nl/wmt17_en_de/valid.en.ids.gz', 'r') as file:
     #     X_dev = file.read()
@@ -122,7 +122,7 @@ def train(finetuning):
         print('finetune')
         model.load_state_dict(
             torch.load(
-                'output/model_seq2seq.pt',
+                'output/model_lm.pt',
             ),
         )
 
@@ -144,8 +144,8 @@ def train(finetuning):
             src_mask = src_mask[:, None, None, :]
 
             inp_tgt, out_tgt = remove_eos(tgt_train), tgt_train[:, 1:]
-            print('inp_tgt', inp_tgt)
-            print('out_tgt', out_tgt)
+            # print('inp_tgt', inp_tgt)
+            # print('out_tgt', out_tgt)
 
             tgt_mask = model.module.get_masks_and_count_tokens_trg(inp_tgt)
 
@@ -159,11 +159,11 @@ def train(finetuning):
 
             count_loss += loss.item()
 
-            print(loss.item())
+            # print(loss.item())
 
-            if torch.isnan(loss).item():
-                breakaction = True
-                break
+            # if torch.isnan(loss).item():
+            #     breakaction = True
+            #     break
 
             accelerator.backward(loss)
 
@@ -216,7 +216,7 @@ def train(finetuning):
             if bleu > best_bleu:
                 best_bleu = bleu
                 torch.save(model.state_dict(),
-                           'output/model_seq2seq.pt'
+                           'output/model_lm.pt'
                            )
 
                 torch.save(optimizer.state_dict(), 'output/optim_seq2seq.bin')
