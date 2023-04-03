@@ -41,8 +41,8 @@ def train(finetuning):
 
     EPOCHS = 200
     BATCH_SIZE = 32
-    LEARNING_RATE = 2e-4
-    GENERATE_EVERY  = 40
+    LEARNING_RATE = 1e-3
+    GENERATE_EVERY  = 10
     MAX_LEN = 100
     WARMUP_STEP = 0
     WINDOW_TRAINING = 1
@@ -51,8 +51,8 @@ def train(finetuning):
     model = LanguageModel(
         model_dimension=512,
         vocab_size=NUM_TOKENS,
-        number_of_heads=4,
-        number_of_layers=2,
+        number_of_heads=8,
+        number_of_layers=6,
         dropout_probability=0.1
     )
 
