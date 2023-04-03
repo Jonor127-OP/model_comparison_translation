@@ -34,7 +34,7 @@ def test():
 
     # constants
 
-    BATCH_SIZE = 156
+    BATCH_SIZE = 32
     MAX_LEN = 100
 
     # Step 2: Prepare the model (original transformer) and push to GPU
