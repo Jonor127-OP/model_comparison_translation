@@ -199,4 +199,4 @@ def train(finetuning):
 
 
 if __name__ == '__main__':
-    train(finetuning=True)
+    train(finetuning=False)
