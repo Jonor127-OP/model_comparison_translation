@@ -96,7 +96,7 @@ def train(finetuning):
     train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=8, shuffle=True,
                            pin_memory=True, collate_fn=MyCollateLM(pad_idx=0))
     dev_dataset = TextSamplerDatasetLM(Y_dev, MAX_LEN)
-    dev_loader  = DataLoader(dev_dataset, batch_size=BATCH_SIZE, num_workers=8, collate_fn=MyCollateLM(pad_idx=0))
+    dev_loader  = DataLoader(dev_dataset, batch_size=1, num_workers=8, collate_fn=MyCollateLM(pad_idx=0))
 
 
     model, optimizer, train_loader, dev_loader = accelerator.prepare(model, optimizer, train_loader, dev_loader)
