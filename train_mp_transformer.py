@@ -65,56 +65,56 @@ def train(finetuning):
 
     print('number of parameters:', count_parameters(model))
 
-    with gzip.open('dataset/nl/seq2seq/wmt17_en_de/train.en.ids.gz', 'r') as file:
-        X_train = file.read()
-        X_train = X_train.decode(encoding='utf-8')
-        X_train = X_train.split('\n')
-        X_train = [np.array([int(x) for x in line.split()]) for line in X_train if line != '']
-
-    with gzip.open('dataset/nl/seq2seq/wmt17_en_de/train.de.ids.gz', 'r') as file:
-        Y_train = file.read()
-        Y_train = Y_train.decode(encoding='utf-8')
-        Y_train = Y_train.split('\n')
-        Y_train = [np.array([int(x) for x in line.split()]) for line in Y_train if line != '']
-
-    with gzip.open('dataset/nl/seq2seq/wmt17_en_de/valid.en.ids.gz', 'r') as file:
-        X_dev = file.read()
-        X_dev = X_dev.decode(encoding='utf-8')
-        X_dev = X_dev.split('\n')
-        X_dev = [np.array([int(x) for x in line.split()]) for line in X_dev if line != '']
-
-    with gzip.open('dataset/nl/seq2seq/wmt17_en_de/valid.de.ids.gz', 'r') as file:
-        Y_dev = file.read()
-        Y_dev = Y_dev.decode(encoding='utf-8')
-        Y_dev = Y_dev.split('\n')
-        Y_dev = [np.array([int(x) for x in line.split()]) for line in Y_dev if line != '']
-
-
-    train_dataset = TextSamplerDatasetS2S(X_train, Y_train, MAX_LEN)
-    train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=8, shuffle=True,
-                           pin_memory=True, collate_fn=MyCollateS2S(pad_idx=0))
-    dev_dataset = TextSamplerDatasetS2S(X_dev, Y_dev, MAX_LEN)
-    dev_loader  = DataLoader(dev_dataset, batch_size=BATCH_SIZE, num_workers=8, collate_fn=MyCollateS2S(pad_idx=0))
-
-    # with gzip.open('dataset/nl/wmt17_en_de/valid.en.ids.gz', 'r') as file:
+    # with gzip.open('dataset/nl/seq2seq/wmt17_en_de/train.en.ids.gz', 'r') as file:
+    #     X_train = file.read()
+    #     X_train = X_train.decode(encoding='utf-8')
+    #     X_train = X_train.split('\n')
+    #     X_train = [np.array([int(x) for x in line.split()]) for line in X_train if line != '']
+    #
+    # with gzip.open('dataset/nl/seq2seq/wmt17_en_de/train.de.ids.gz', 'r') as file:
+    #     Y_train = file.read()
+    #     Y_train = Y_train.decode(encoding='utf-8')
+    #     Y_train = Y_train.split('\n')
+    #     Y_train = [np.array([int(x) for x in line.split()]) for line in Y_train if line != '']
+    #
+    # with gzip.open('dataset/nl/seq2seq/wmt17_en_de/valid.en.ids.gz', 'r') as file:
     #     X_dev = file.read()
     #     X_dev = X_dev.decode(encoding='utf-8')
     #     X_dev = X_dev.split('\n')
-    #     X_dev = [np.array([int(x) for x in line.split()]) for line in X_dev]
-    #     X_dev = X_dev[0:1000]
+    #     X_dev = [np.array([int(x) for x in line.split()]) for line in X_dev if line != '']
     #
-    # with gzip.open('dataset/nl/wmt17_en_de/valid.de.ids.gz', 'r') as file:
+    # with gzip.open('dataset/nl/seq2seq/wmt17_en_de/valid.de.ids.gz', 'r') as file:
     #     Y_dev = file.read()
     #     Y_dev = Y_dev.decode(encoding='utf-8')
     #     Y_dev = Y_dev.split('\n')
-    #     Y_dev = [np.array([int(x) for x in line.split()]) for line in Y_dev]
-    #     Y_dev = Y_dev[0:1000]
+    #     Y_dev = [np.array([int(x) for x in line.split()]) for line in Y_dev if line != '']
     #
-    # train_dataset = TextSamplerDataset(X_dev, Y_dev, MAX_LEN)
-    # train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=2, shuffle=True,
-    #                        pin_memory=True, collate_fn=MyCollate(pad_idx=0))
-    # dev_dataset = TextSamplerDataset(X_dev, Y_dev, MAX_LEN)
-    # dev_loader  = DataLoader(dev_dataset, batch_size=BATCH_SIZE, num_workers=2, collate_fn=MyCollate(pad_idx=0))
+    #
+    # train_dataset = TextSamplerDatasetS2S(X_train, Y_train, MAX_LEN)
+    # train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=8, shuffle=True,
+    #                        pin_memory=True, collate_fn=MyCollateS2S(pad_idx=0))
+    # dev_dataset = TextSamplerDatasetS2S(X_dev, Y_dev, MAX_LEN)
+    # dev_loader  = DataLoader(dev_dataset, batch_size=BATCH_SIZE, num_workers=8, collate_fn=MyCollateS2S(pad_idx=0))
+
+    with gzip.open('dataset/nl/wmt17_en_de/valid.en.ids.gz', 'r') as file:
+        X_dev = file.read()
+        X_dev = X_dev.decode(encoding='utf-8')
+        X_dev = X_dev.split('\n')
+        X_dev = [np.array([int(x) for x in line.split()]) for line in X_dev]
+        X_dev = X_dev[0:100]
+
+    with gzip.open('dataset/nl/wmt17_en_de/valid.de.ids.gz', 'r') as file:
+        Y_dev = file.read()
+        Y_dev = Y_dev.decode(encoding='utf-8')
+        Y_dev = Y_dev.split('\n')
+        Y_dev = [np.array([int(x) for x in line.split()]) for line in Y_dev]
+        Y_dev = Y_dev[0:100]
+
+    train_dataset = TextSamplerDatasetS2S(X_dev, Y_dev, MAX_LEN)
+    train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=2, shuffle=True,
+                           pin_memory=True, collate_fn=MyCollateS2S(pad_idx=0))
+    dev_dataset = TextSamplerDatasetS2S(X_dev, Y_dev, MAX_LEN)
+    dev_loader  = DataLoader(dev_dataset, batch_size=BATCH_SIZE, num_workers=2, collate_fn=MyCollateS2S(pad_idx=0))
 
     model, optimizer, train_loader, dev_loader = accelerator.prepare(model, optimizer, train_loader, dev_loader)
 

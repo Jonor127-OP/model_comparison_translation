@@ -51,7 +51,7 @@ def test():
         Y_test = Y_test.decode(encoding='utf-8')
         Y_test = Y_test.split('\n')
         Y_test = [np.array([int(x) for x in line.split()]) for line in Y_test]
-        # X_test = X_test[0:200]
+        Y_test = Y_test[0:20]
 
     test_dataset = TextSamplerDatasetLM(Y_test, MAX_LEN)
     test_loader  = DataLoader(test_dataset, batch_size=BATCH_SIZE, num_workers=1, collate_fn=MyCollateLM(pad_idx=0))
