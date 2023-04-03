@@ -216,7 +216,7 @@ def train(finetuning):
             if bleu > best_bleu:
                 best_bleu = bleu
                 torch.save(model.state_dict(),
-                           'output/model_lm.pt'
+                           'output/model_seq2seq.pt'
                            )
 
                 torch.save(optimizer.state_dict(), 'output/optim_seq2seq.bin')
