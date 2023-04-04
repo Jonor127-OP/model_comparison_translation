@@ -30,7 +30,7 @@ def transform_to_ids(vocab_file, tokenized_file, output_file):
                 tokens = [token for token in tokens if token != '´']
 
             # Convert the tokens to ids using the vocabulary
-            ids = [vocab['<sos>']] + [vocab[token] if token in vocab else 2 for token in tokens] + [vocab['<eos>']]
+            ids = [vocab['<sos>']] + [vocab[token] if token in vocab else 3 for token in tokens] + [vocab['<eos>']]
             # Write the ids to the output file
             output_f.write((" ".join([str(id) for id in ids]) + "\n").encode())
 
