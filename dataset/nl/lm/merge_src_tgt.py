@@ -12,7 +12,10 @@ def merge_src_tgt(src, tgt, output_file):
 
     with open(output_file, 'w') as merged_file:
         for line1, line2 in merged_lines:
-            merged_file.write(line1.strip() + ' <sep> ' + line2)
+            if line1 == '' or line2 == '':
+                pass
+            else:
+                merged_file.write(line1.strip() + ' <sep> ' + line2)
 
 
 if __name__ == "__main__":
