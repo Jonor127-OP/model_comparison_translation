@@ -33,10 +33,10 @@ def train(finetuning):
 
     # constants
 
-    EPOCHS = 201
-    BATCH_SIZE = 10
+    EPOCHS = 210
+    BATCH_SIZE = 50
     LEARNING_RATE = 1e-4
-    GENERATE_EVERY  = 1
+    GENERATE_EVERY  = 50
     MAX_LEN = 200
     WARMUP_STEP = 0
     WINDOW_TRAINING = 0
@@ -83,7 +83,7 @@ def train(finetuning):
         Y_train = Y_train.decode(encoding='utf-8')
         Y_train = Y_train.split('\n')
         Y_train = [np.array([int(x) for x in line.split()]) for line in Y_train if line != '<sep>']
-        Y_train = Y_train[0:10]
+        Y_train = Y_train[0:50]
 
     train_dataset = TextSamplerDatasetLM(Y_train, MAX_LEN)
     train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=1, shuffle=True,
@@ -163,7 +163,7 @@ def train(finetuning):
                 sample = model.generate_greedy(tgt_dev_input, MAX_LEN, cuda=False)
 
                 target.append([ids_to_tokens(tgt_dev_output.tolist()[i][1:], vocabulary) for i in range(tgt_dev.shape[0])])
-                predicted.append([ids_to_tokens(sample.tolist()[i], vocabulary) for i in range(tgt_dev.shape[0])])
+                predicted.append([ids_to_tokens(sample.tolist()[i][1:], vocabulary) for i in range(tgt_dev.shape[0])])
 
             target_bleu = [BPE_to_eval(sentence, lm=True) for sentence in target]
             predicted_bleu = [BPE_to_eval(sentence, lm=True) for sentence in predicted]

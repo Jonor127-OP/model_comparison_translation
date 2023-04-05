@@ -158,17 +158,14 @@ class Decoder(nn.Module):
         self.decoder_layers = get_clones(decoder_layer, number_of_layers)
         self.norm = nn.LayerNorm(decoder_layer.model_dimension)
 
-    def forward(self, trg_embeddings_batch, src_representations_batch=None, trg_mask=None, src_mask=None):
+    def forward(self, trg_embeddings_batch, trg_mask=None):
         # Just update the naming so as to reflect the semantics of what this var will become
         trg_representations_batch = trg_embeddings_batch
 
         # Forward pass through the decoder stack
         for decoder_layer in self.decoder_layers:
             # Target mask masks pad tokens as well as future tokens (current target token can't look forward)
-            if src_representations_batch is not None and trg_mask is not None and src_mask is not None:
-                trg_representations_batch = decoder_layer(trg_representations_batch, src_representations_batch, trg_mask, src_mask)
-            else:
-                trg_representations_batch = decoder_layer(trg_representations_batch)
+                trg_representations_batch = decoder_layer(trg_representations_batch, trg_mask=trg_mask)
 
         # Not mentioned explicitly in the paper (a consequence of using LayerNorm before instead of after the sublayer
         # check out the SublayerLogic module)
