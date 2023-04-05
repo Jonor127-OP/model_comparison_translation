@@ -160,7 +160,7 @@ def train(finetuning):
 
                 tgt_dev_input, tgt_dev_output = get_input_output_lm(tgt_dev, window=WINDOW_TRAINING)
 
-                sample = model.generate_greedy(tgt_dev_input, MAX_LEN, device='cpu')
+                sample = model.generate_greedy(tgt_dev_input, MAX_LEN, cuda=False)
 
                 target.append([ids_to_tokens(tgt_dev_output.tolist()[i][1:], vocabulary) for i in range(tgt_dev.shape[0])])
                 predicted.append([ids_to_tokens(sample.tolist()[i], vocabulary) for i in range(tgt_dev.shape[0])])

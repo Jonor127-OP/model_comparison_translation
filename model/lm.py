@@ -95,7 +95,7 @@ class LanguageModel(nn.Module):
         eos_reached = False
 
         while True:
-            input_mask = self.get_masks_and_count_tokens_trg(trg_token_ids_batch, cuda=cuda)
+            input_mask = self.get_masks_and_count_tokens_trg(input_token_ids, cuda=cuda)
 
             input_embeddings = self.embedding(input_token_ids)
             input_embeddings = self.pos_embedding(input_embeddings)
