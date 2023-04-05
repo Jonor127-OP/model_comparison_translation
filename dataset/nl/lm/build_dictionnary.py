@@ -15,7 +15,7 @@ def main():
     worddict['<sos>'] = 2
     worddict['<unk>'] = 3
     worddict['<pad>'] = 0
-    worddict['<sep>'] = 5
+    worddict['<sep>'] = 4
 
     for filename in sys.argv[1:]:
         print('Processing', filename)

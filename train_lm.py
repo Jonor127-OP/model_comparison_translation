@@ -34,9 +34,9 @@ def train(finetuning):
     # constants
 
     EPOCHS = 200
-    BATCH_SIZE = 10
+    BATCH_SIZE = 100
     LEARNING_RATE = 1e-3
-    GENERATE_EVERY  = 40
+    GENERATE_EVERY  = 1
     MAX_LEN = 200
     WARMUP_STEP = 0
     WINDOW_TRAINING = 1
@@ -83,7 +83,7 @@ def train(finetuning):
         Y_train = Y_train.decode(encoding='utf-8')
         Y_train = Y_train.split('\n')
         Y_train = [np.array([int(x) for x in line.split()]) for line in Y_train]
-        Y_train = Y_train[0:10]
+        Y_train = Y_train[0:100]
 
     train_dataset = TextSamplerDatasetLM(Y_train, MAX_LEN)
     train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=1, shuffle=True,
@@ -124,6 +124,8 @@ def train(finetuning):
             predicted_log_distributions = model(inp_tgt, tgt_mask)
 
             # print('predicted_log_distributions', predicted_log_distributions)
+
+            a = predicted_log_distributions.view(-1, NUM_TOKENS)
 
             loss = ca(predicted_log_distributions.view(-1, NUM_TOKENS), out_tgt.contiguous().view(-1).type(torch.LongTensor))
 
@@ -189,4 +191,4 @@ def train(finetuning):
 
 
 if __name__ == '__main__':
-    train(finetuning=False)
+    train(finetuning=True)

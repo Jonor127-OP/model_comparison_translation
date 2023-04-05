@@ -133,7 +133,7 @@ def remove_eos(x, eos_id=1, window=0):
 
     return X_no_eos[:, window:-1]
 
-def get_input_output_lm(x, sep_id=5, window=0):
+def get_input_output_lm(x, sep_id=4, window=0):
 
     # Find the indices where the ID occurs
     indices = torch.where(x[0] == sep_id)[0]
