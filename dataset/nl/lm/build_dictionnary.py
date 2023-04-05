@@ -9,7 +9,7 @@ import json
 
 
 def main():
-    i = 4
+    i = 5
     worddict = OrderedDict()
     worddict['<eos>'] = 1
     worddict['<sos>'] = 2
