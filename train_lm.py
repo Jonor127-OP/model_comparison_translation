@@ -33,13 +33,13 @@ def train(finetuning):
 
     # constants
 
-    EPOCHS = 200
-    BATCH_SIZE = 100
-    LEARNING_RATE = 1e-3
+    EPOCHS = 201
+    BATCH_SIZE = 10
+    LEARNING_RATE = 1e-4
     GENERATE_EVERY  = 1
     MAX_LEN = 200
     WARMUP_STEP = 0
-    WINDOW_TRAINING = 1
+    WINDOW_TRAINING = 0
 
     # Step 2: Prepare the model (original transformer) and push to GPU
     model = LanguageModel(
@@ -78,12 +78,12 @@ def train(finetuning):
     # dev_dataset = TextSamplerDatasetLM(Y_dev, MAX_LEN)
     # dev_loader  = DataLoader(dev_dataset, batch_size=BATCH_SIZE, num_workers=8, collate_fn=MyCollateLM(pad_idx=0))
 
-    with gzip.open('dataset/nl/lm/wmt17_en_de/valid.merge_en_de.ids.gz', 'r') as file:
+    with gzip.open('dataset/nl/lm/wmt17_en_de/train.merge_en_de.ids.gz', 'r') as file:
         Y_train = file.read()
         Y_train = Y_train.decode(encoding='utf-8')
         Y_train = Y_train.split('\n')
-        Y_train = [np.array([int(x) for x in line.split()]) for line in Y_train]
-        Y_train = Y_train[0:100]
+        Y_train = [np.array([int(x) for x in line.split()]) for line in Y_train if line != '<sep>']
+        Y_train = Y_train[0:10]
 
     train_dataset = TextSamplerDatasetLM(Y_train, MAX_LEN)
     train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=1, shuffle=True,
@@ -162,7 +162,7 @@ def train(finetuning):
 
                 sample = model.generate_greedy(tgt_dev_input, MAX_LEN, device='cpu')
 
-                target.append([ids_to_tokens(tgt_dev.tolist()[i][1:], vocabulary) for i in range(tgt_dev.shape[0])])
+                target.append([ids_to_tokens(tgt_dev_output.tolist()[i][1:], vocabulary) for i in range(tgt_dev.shape[0])])
                 predicted.append([ids_to_tokens(sample.tolist()[i], vocabulary) for i in range(tgt_dev.shape[0])])
 
             target_bleu = [BPE_to_eval(sentence, lm=True) for sentence in target]
@@ -191,4 +191,4 @@ def train(finetuning):
 
 
 if __name__ == '__main__':
-    train(finetuning=True)
+    train(finetuning=False)

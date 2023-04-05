@@ -3,7 +3,9 @@
   <component name="ChangeListManager">
     <list default="true" id="24cbd687-f852-49c9-b2a7-9816ec256288" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/model/lm.py" beforeDir="false" afterPath="$PROJECT_DIR$/model/lm.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/train_lm.py" beforeDir="false" afterPath="$PROJECT_DIR$/train_lm.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/train_mp_lm.py" beforeDir="false" afterPath="$PROJECT_DIR$/train_mp_lm.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -41,6 +43,28 @@
     </key>
   </component>
   <component name="RunManager" selected="Python.train_lm">
+    <configuration name="tokenized_to_ids" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
+      <module name="model_comparison_translation" />
+      <option name="INTERPRETER_OPTIONS" value="" />
+      <option name="PARENT_ENVS" value="true" />
+      <envs>
+        <env name="PYTHONUNBUFFERED" value="1" />
+      </envs>
+      <option name="SDK_HOME" value="" />
+      <option name="WORKING_DIRECTORY" value="$PROJECT_DIR$/dataset/nl/lm" />
+      <option name="IS_MODULE_SDK" value="true" />
+      <option name="ADD_CONTENT_ROOTS" value="true" />
+      <option name="ADD_SOURCE_ROOTS" value="true" />
+      <EXTENSION ID="PythonCoverageRunConfigurationExtension" runner="coverage.py" />
+      <option name="SCRIPT_NAME" value="$PROJECT_DIR$/dataset/nl/lm/tokenized_to_ids.py" />
+      <option name="PARAMETERS" value="wmt17_en_de/vocabulary.json wmt17_en_de/train.merge_en_de wmt17_en_de/train.merge_en_de.ids.gz" />
+      <option name="SHOW_COMMAND_LINE" value="false" />
+      <option name="EMULATE_TERMINAL" value="false" />
+      <option name="MODULE_MODE" value="false" />
+      <option name="REDIRECT_INPUT" value="false" />
+      <option name="INPUT_FILE" value="" />
+      <method v="2" />
+    </configuration>
     <configuration name="train_lm" type="PythonConfigurationType" factoryName="Python" temporary="true" nameIsGenerated="true">
       <module name="model_comparison_translation" />
       <option name="INTERPRETER_OPTIONS" value="" />
@@ -122,9 +146,17 @@
       <envs />
       <method v="2" />
     </configuration>
+    <list>
+      <item itemvalue="Python.tokenized_to_ids" />
+      <item itemvalue="Python.train_lm" />
+      <item itemvalue="Python.train_mp_transformer" />
+      <item itemvalue="Python.train_transformer" />
+      <item itemvalue="Shell Script.prepare-wmt14en2de.sh" />
+    </list>
     <recent_temporary>
       <list>
         <item itemvalue="Python.train_lm" />
+        <item itemvalue="Python.tokenized_to_ids" />
         <item itemvalue="Python.train_transformer" />
         <item itemvalue="Python.train_mp_transformer" />
         <item itemvalue="Shell Script.prepare-wmt14en2de.sh" />
@@ -140,7 +172,7 @@
       <option name="presentableId" value="Default" />
       <updated>1677608108061</updated>
       <workItem from="1677608109621" duration="51109000" />
-      <workItem from="1679054793187" duration="78160000" />
+      <workItem from="1679054793187" duration="89588000" />
     </task>
     <servers />
   </component>
@@ -192,9 +224,19 @@
           <option name="timeStamp" value="36" />
         </line-breakpoint>
         <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/train_lm.py</url>
-          <line>160</line>
-          <option name="timeStamp" value="37" />
+          <url>file://$PROJECT_DIR$/dataset/nl/lm/tokenized_to_ids.py</url>
+          <line>14</line>
+          <option name="timeStamp" value="39" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/dataset/nl/lm/tokenized_to_ids.py</url>
+          <line>34</line>
+          <option name="timeStamp" value="40" />
+        </line-breakpoint>
+        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
+          <url>file://$PROJECT_DIR$/model/lm.py</url>
+          <line>94</line>
+          <option name="timeStamp" value="43" />
         </line-breakpoint>
       </breakpoints>
       <default-breakpoints>
@@ -209,7 +251,8 @@
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/model_comparison_translation$train_mp.coverage" NAME="train_mp Coverage Results" MODIFIED="1677764449439" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/model_comparison_translation$train.coverage" NAME="train_transformer Coverage Results" MODIFIED="1680277013015" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
-    <SUITE FILE_PATH="coverage/model_comparison_translation$train_lm.coverage" NAME="train_lm Coverage Results" MODIFIED="1680690663274" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
+    <SUITE FILE_PATH="coverage/model_comparison_translation$tokenized_to_ids.coverage" NAME="tokenized_to_ids Coverage Results" MODIFIED="1680701134290" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/dataset/nl/lm" />
+    <SUITE FILE_PATH="coverage/model_comparison_translation$train_lm.coverage" NAME="train_lm Coverage Results" MODIFIED="1680707100071" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
     <SUITE FILE_PATH="coverage/model_comparison_translation$train_mp_transformer.coverage" NAME="train_mp_transformer Coverage Results" MODIFIED="1680269536673" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="true" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$" />
   </component>
 </project>

@@ -88,14 +88,15 @@ class LanguageModel(nn.Module):
         best_hypothesis = hypotheses[0][0]
         return best_hypothesis
 
-    def generate_greedy(self, input_token_ids, max_len, device='cuda'):
-        if device == 'cuda':
+    def generate_greedy(self, input_token_ids, max_len, cuda=False):
+        if cuda:
             input_token_ids = input_token_ids.cuda()
 
         eos_reached = False
 
         while True:
-            input_mask = (input_token_ids != 0).unsqueeze(1)
+            input_mask = self.get_masks_and_count_tokens_trg(trg_token_ids_batch, cuda=cuda)
+
             input_embeddings = self.embedding(input_token_ids)
             input_embeddings = self.pos_embedding(input_embeddings)
 
@@ -113,7 +114,7 @@ class LanguageModel(nn.Module):
             if eos_reached:
                 break
 
-            if device == 'cuda':
+            if cuda:
                 input_token_ids = torch.cat((input_token_ids,
                                              torch.unsqueeze(torch.tensor(most_probable_token_indices[-1]).cuda(),
                                                              0).unsqueeze(0)), 1)
