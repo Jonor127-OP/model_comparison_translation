@@ -8,7 +8,7 @@
 
 #SBATCH --error=./logfiles/logfile_wmt_test.err
 
-#SBATCH --time=00:30:00
+#SBATCH --time=01:59:00
 
 #SBATCH --ntasks=1
 

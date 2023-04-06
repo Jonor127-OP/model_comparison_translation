@@ -3,6 +3,8 @@
   <component name="ChangeListManager">
     <list default="true" id="24cbd687-f852-49c9-b2a7-9816ec256288" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/test_transformer.sh" beforeDir="false" afterPath="$PROJECT_DIR$/test_transformer.sh" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/train_transformer.sh" beforeDir="false" afterPath="$PROJECT_DIR$/train_transformer.sh" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -169,7 +171,7 @@
       <option name="presentableId" value="Default" />
       <updated>1677608108061</updated>
       <workItem from="1677608109621" duration="51109000" />
-      <workItem from="1679054793187" duration="96573000" />
+      <workItem from="1679054793187" duration="98620000" />
     </task>
     <servers />
   </component>
