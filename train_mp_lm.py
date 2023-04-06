@@ -39,13 +39,13 @@ def train(finetuning):
 
     # constants
 
-    EPOCHS = 200
-    BATCH_SIZE = 32
+    EPOCHS = 30
+    BATCH_SIZE = 96
     LEARNING_RATE = 1e-3
-    GENERATE_EVERY  = 20
-    MAX_LEN = 200
-    WARMUP_STEP = 10
-    WINDOW_TRAINING = 1
+    GENERATE_EVERY  = 1
+    MAX_LEN = 250
+    WARMUP_STEP = 30000
+    WINDOW_TRAINING = 0
 
     # Step 2: Prepare the model (original transformer) and push to GPU
     model = LanguageModel(
@@ -65,38 +65,38 @@ def train(finetuning):
 
     print('number of parameters:', count_parameters(model))
 
-    # with gzip.open('dataset/nl/lm/wmt17_en_de/train.de.ids.gz', 'r') as file:
-    #     Y_train = file.read()
-    #     Y_train = Y_train.decode(encoding='utf-8')
-    #     Y_train = Y_train.split('\n')
-    #     Y_train = [np.array([int(x) for x in line.split()]) for line in Y_train if line != '']
-    #
-    # with gzip.open('dataset/nl/lm/wmt17_en_de/valid.merge_en_de.ids.gz', 'r') as file:
-    #     Y_dev = file.read()
-    #     Y_dev = Y_dev.decode(encoding='utf-8')
-    #     Y_dev = Y_dev.split('\n')
-    #     Y_dev = [np.array([int(x) for x in line.split()]) for line in Y_dev if line != '']
-    #
-    #
-    # train_dataset = TextSamplerDatasetLM(Y_train, MAX_LEN)
-    # train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=8, shuffle=True,
-    #                        pin_memory=True, collate_fn=MyCollateLM(pad_idx=0))
-    # dev_dataset = TextSamplerDatasetLM(Y_dev, MAX_LEN)
-    # dev_loader  = DataLoader(dev_dataset, batch_size=BATCH_SIZE, num_workers=8, collate_fn=MyCollateLM(pad_idx=0))
+    with gzip.open('dataset/nl/lm/wmt17_en_de/train.de.ids.gz', 'r') as file:
+        Y_train = file.read()
+        Y_train = Y_train.decode(encoding='utf-8')
+        Y_train = Y_train.split('\n')
+        Y_train = [np.array([int(x) for x in line.split()]) for line in Y_train if line != '']
 
     with gzip.open('dataset/nl/lm/wmt17_en_de/valid.merge_en_de.ids.gz', 'r') as file:
         Y_dev = file.read()
         Y_dev = Y_dev.decode(encoding='utf-8')
         Y_dev = Y_dev.split('\n')
         Y_dev = [np.array([int(x) for x in line.split()]) for line in Y_dev if line != '']
-        Y_dev =Y_dev[0:160]
 
 
-    train_dataset = TextSamplerDatasetLM(Y_dev, MAX_LEN)
+    train_dataset = TextSamplerDatasetLM(Y_train, MAX_LEN)
     train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=8, shuffle=True,
                            pin_memory=True, collate_fn=MyCollateLM(pad_idx=0))
     dev_dataset = TextSamplerDatasetLM(Y_dev, MAX_LEN)
-    dev_loader  = DataLoader(dev_dataset, batch_size=1, num_workers=8, collate_fn=MyCollateLM(pad_idx=0))
+    dev_loader  = DataLoader(dev_dataset, batch_size=BATCH_SIZE, num_workers=8, collate_fn=MyCollateLM(pad_idx=0))
+
+    # with gzip.open('dataset/nl/lm/wmt17_en_de/valid.merge_en_de.ids.gz', 'r') as file:
+    #     Y_dev = file.read()
+    #     Y_dev = Y_dev.decode(encoding='utf-8')
+    #     Y_dev = Y_dev.split('\n')
+    #     Y_dev = [np.array([int(x) for x in line.split()]) for line in Y_dev if line != '']
+    #     Y_dev =Y_dev[0:160]
+    #
+    #
+    # train_dataset = TextSamplerDatasetLM(Y_dev, MAX_LEN)
+    # train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=8, shuffle=True,
+    #                        pin_memory=True, collate_fn=MyCollateLM(pad_idx=0))
+    # dev_dataset = TextSamplerDatasetLM(Y_dev, MAX_LEN)
+    # dev_loader  = DataLoader(dev_dataset, batch_size=1, num_workers=8, collate_fn=MyCollateLM(pad_idx=0))
 
 
     model, optimizer, train_loader, dev_loader, scheduler= accelerator.prepare(model, optimizer, train_loader, dev_loader, scheduler)
