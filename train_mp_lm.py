@@ -99,7 +99,7 @@ def train(finetuning):
     dev_loader  = DataLoader(dev_dataset, batch_size=1, num_workers=8, collate_fn=MyCollateLM(pad_idx=0))
 
 
-    model, optimizer, train_loader, dev_loader = accelerator.prepare(model, optimizer, train_loader, dev_loader)
+    model, optimizer, train_loader, dev_loader, scheduler= accelerator.prepare(model, optimizer, train_loader, dev_loader, scheduler)
 
     if finetuning:
         print('finetune')

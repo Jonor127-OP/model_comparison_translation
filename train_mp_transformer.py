@@ -116,7 +116,7 @@ def train(finetuning):
     dev_dataset = TextSamplerDatasetS2S(X_dev, Y_dev, MAX_LEN)
     dev_loader  = DataLoader(dev_dataset, batch_size=BATCH_SIZE, num_workers=2, collate_fn=MyCollateS2S(pad_idx=0))
 
-    model, optimizer, train_loader, dev_loader = accelerator.prepare(model, optimizer, train_loader, dev_loader)
+    model, optimizer, train_loader, dev_loader, scheduler = accelerator.prepare(model, optimizer, train_loader, dev_loader, scheduler)
 
     if finetuning:
         print('finetune')
