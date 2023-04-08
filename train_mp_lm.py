@@ -65,7 +65,7 @@ def train(finetuning):
 
     print('number of parameters:', count_parameters(model))
 
-    with gzip.open('dataset/nl/lm/wmt17_en_de/train.de.ids.gz', 'r') as file:
+    with gzip.open('dataset/nl/lm/wmt17_en_de/train.merge_en_de.ids.gz', 'r') as file:
         Y_train = file.read()
         Y_train = Y_train.decode(encoding='utf-8')
         Y_train = Y_train.split('\n')
