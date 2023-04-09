@@ -4,9 +4,9 @@
 
 #SBATCH --qos=qos_gpu-dev
 
-#SBATCH --output=./logfiles/logfile_wmt_test.out
+#SBATCH --output=./logfiles/logfile_wmt_test_s2s.out
 
-#SBATCH --error=./logfiles/logfile_wmt_test.err
+#SBATCH --error=./logfiles/logfile_wmt_test_s2s.err
 
 #SBATCH --time=01:59:00
 
