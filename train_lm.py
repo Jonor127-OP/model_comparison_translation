@@ -162,8 +162,8 @@ def train(finetuning):
 
                 sample = model.generate_greedy(tgt_dev_input, MAX_LEN, cuda=False)
 
-                target.append([ids_to_tokens(tgt_dev_output.tolist()[i][1:], vocabulary) for i in range(tgt_dev.shape[0])])
-                predicted.append([ids_to_tokens(sample.tolist()[i][1:], vocabulary) for i in range(tgt_dev.shape[0])])
+                target.append([ids_to_tokens(tgt_dev_output.tolist()[0][1:], vocabulary)])
+                predicted.append([ids_to_tokens(sample.tolist()[0][1:], vocabulary)])
 
             target_bleu = [BPE_to_eval(sentence, lm=True) for sentence in target]
             predicted_bleu = [BPE_to_eval(sentence, lm=True) for sentence in predicted]
