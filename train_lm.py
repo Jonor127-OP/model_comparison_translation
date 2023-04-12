@@ -36,7 +36,7 @@ def train(finetuning):
     EPOCHS = 210
     BATCH_SIZE = 50
     LEARNING_RATE = 1e-4
-    GENERATE_EVERY  = 50
+    GENERATE_EVERY  = 1
     MAX_LEN = 200
     WARMUP_STEP = 0
     WINDOW_TRAINING = 0
@@ -78,7 +78,7 @@ def train(finetuning):
     # dev_dataset = TextSamplerDatasetLM(Y_dev, MAX_LEN)
     # dev_loader  = DataLoader(dev_dataset, batch_size=BATCH_SIZE, num_workers=8, collate_fn=MyCollateLM(pad_idx=0))
 
-    with gzip.open('dataset/nl/lm/wmt17_en_de/train.merge_en_de.ids.gz', 'r') as file:
+    with gzip.open('dataset/nl/lm/wmt17_en_de/valid.merge_en_de.ids.gz', 'r') as file:
         Y_train = file.read()
         Y_train = Y_train.decode(encoding='utf-8')
         Y_train = Y_train.split('\n')
