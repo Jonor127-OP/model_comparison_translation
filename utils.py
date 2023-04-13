@@ -21,6 +21,11 @@ def ids_to_tokens(ids_list, vocabulary):
 def BPE_to_eval(BPE_list, lm=True):
     if lm:
         BPE_list = BPE_list[0]
+        try:
+            id_index = BPE_list.index('<sep>')
+            BPE_list = BPE_list[id_index + 1:]
+        except:
+            pass
     sentence = ' '.join(BPE_list)
     replace_string = re.sub(r'(@@ )|(@@ ?$)', '', sentence)
 
