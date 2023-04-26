@@ -58,17 +58,17 @@ def test():
 
     model, test_loader = accelerator.prepare(model, test_loader)
 
-    # model.load_state_dict(
-    #     torch.load(
-    #         'output/model_lm.pt',
-    #     ),
-    # )
+    model.load_state_dict(
+        torch.load(
+            'output/model_lm.pt',
+        ),
+    )
 
     model.eval()
     target = []
     predicted = []
 
-    for tgt_test in test_loader:
+    for i, tgt_test in enumerate(test_loader):
         tgt_dev_input, tgt_dev_output = get_input_output_lm(tgt_test, window=0)
 
         sample = model.module.generate_greedy(tgt_dev_input, MAX_LEN, cuda=True)
