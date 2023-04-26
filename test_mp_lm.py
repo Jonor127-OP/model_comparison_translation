@@ -71,7 +71,7 @@ def test():
     for tgt_test in test_loader:
         tgt_dev_input, tgt_dev_output = get_input_output_lm(tgt_test, window=0)
 
-        sample = model.module.generate_greedy(tgt_dev_input, MAX_LEN)
+        sample = model.module.generate_greedy(tgt_dev_input, MAX_LEN, cuda=True)
 
         target.append([ids_to_tokens(tgt_test.tolist()[0][1:], vocabulary)])
         predicted.append([ids_to_tokens(sample.tolist()[0][1:], vocabulary)])
