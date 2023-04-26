@@ -34,8 +34,8 @@ def test():
 
     # constants
 
-    BATCH_SIZE = 32
-    MAX_LEN = 100
+    # BATCH_SIZE = 32
+    MAX_LEN = 200
 
     # Step 2: Prepare the model (original transformer) and push to GPU
     model = LanguageModel(
@@ -46,35 +46,35 @@ def test():
         dropout_probability=0.1
     )
 
-    with gzip.open('dataset/nl/seq2seq/wmt17_en_de/test.de.ids.gz', 'r') as file:
+    with gzip.open('dataset/nl/lm/wmt17_en_de/test.merge_en_de.ids.gz', 'r') as file:
         Y_test = file.read()
         Y_test = Y_test.decode(encoding='utf-8')
         Y_test = Y_test.split('\n')
         Y_test = [np.array([int(x) for x in line.split()]) for line in Y_test]
-        Y_test = Y_test[0:20]
+        # Y_test = Y_test[0:20]
 
     test_dataset = TextSamplerDatasetLM(Y_test, MAX_LEN)
-    test_loader  = DataLoader(test_dataset, batch_size=BATCH_SIZE, num_workers=1, collate_fn=MyCollateLM(pad_idx=0))
+    test_loader  = DataLoader(test_dataset, batch_size=1, num_workers=4, collate_fn=MyCollateLM(pad_idx=0))
 
     model, test_loader = accelerator.prepare(model, test_loader)
 
-    model.load_state_dict(
-        torch.load(
-            'output/model_lm.pt',
-        ),
-    )
+    # model.load_state_dict(
+    #     torch.load(
+    #         'output/model_lm.pt',
+    #     ),
+    # )
 
     model.eval()
     target = []
     predicted = []
 
     for tgt_test in test_loader:
-        tgt_dev_input, tgt_dev_output = get_input_output_lm(tgt_test, window=1)
+        tgt_dev_input, tgt_dev_output = get_input_output_lm(tgt_test, window=0)
 
         sample = model.module.generate_greedy(tgt_dev_input, MAX_LEN)
 
-        target.append([ids_to_tokens(tgt_test.tolist()[i][1:], vocabulary) for i in range(tgt_test.shape[0])])
-        predicted.append([ids_to_tokens(sample.tolist()[i][1:], vocabulary) for i in range(tgt_test.shape[0])])
+        target.append([ids_to_tokens(tgt_test.tolist()[0][1:], vocabulary)])
+        predicted.append([ids_to_tokens(sample.tolist()[0][1:], vocabulary)])
 
     target_bleu = [BPE_to_eval(sentence, lm=True) for sentence in target]
     predicted_bleu = [BPE_to_eval(sentence, lm=True) for sentence in predicted]
