@@ -13,31 +13,38 @@ CLEAN=$SCRIPTS/training/clean-corpus-n.perl
 NORM_PUNC=$SCRIPTS/tokenizer/normalize-punctuation.perl
 REM_NON_PRINT_CHAR=$SCRIPTS/tokenizer/remove-non-printing-char.perl
 BPEROOT=subword-nmt/subword_nmt
-BPE_TOKENS=40000
+BPE_TOKENS=34000
 
 URLS=(
     "http://statmt.org/wmt13/training-parallel-europarl-v7.tgz"
     "http://statmt.org/wmt13/training-parallel-commoncrawl.tgz"
-    "http://statmt.org/wmt13/training-parallel-un.tgz"
-    "http://statmt.org/wmt14/training-parallel-nc-v9.tgz"
-    "http://statmt.org/wmt10/training-giga-fren.tar"
+    "http://data.statmt.org/wmt17/translation-task/training-parallel-nc-v12.tgz"
+    "http://data.statmt.org/wmt17/translation-task/dev.tgz"
     "http://statmt.org/wmt14/test-full.tgz"
 )
 FILES=(
     "training-parallel-europarl-v7.tgz"
     "training-parallel-commoncrawl.tgz"
-    "training-parallel-un.tgz"
-    "training-parallel-nc-v9.tgz"
-    "training-giga-fren.tar"
+    "training-parallel-nc-v12.tgz"
+    "dev.tgz"
     "test-full.tgz"
 )
 CORPORA=(
-    "training/europarl-v7.fr-en"
-    "commoncrawl.fr-en"
-    "un/undoc.2000.fr-en"
-    "training/news-commentary-v9.fr-en"
-    "giga-fren.release2.fixed"
+    "training/europarl-v7.de-en"
+    "commoncrawl.de-en"
+    "training/news-commentary-v12.de-en"
 )
+
+# This will make the dataset compatible to the one used in "Convolutional Sequence to Sequence Learning"
+# https://arxiv.org/abs/1705.03122
+if [ "$1" == "--icml17" ]; then
+    URLS[2]="http://statmt.org/wmt14/training-parallel-nc-v9.tgz"
+    FILES[2]="training-parallel-nc-v9.tgz"
+    CORPORA[2]="training/news-commentary-v9.de-en"
+    OUTDIR=wmt14_en_de
+else
+    OUTDIR=wmt17_en_de
+fi
 
 if [ ! -d "$SCRIPTS" ]; then
     echo "Please set SCRIPTS variable correctly to point to Moses scripts."
@@ -45,11 +52,12 @@ if [ ! -d "$SCRIPTS" ]; then
 fi
 
 src=en
-tgt=fr
-lang=en-fr
-prep=wmt14_en_fr
+tgt=de
+lang=en-de
+prep=$OUTDIR
 tmp=$prep/tmp
 orig=orig
+dev=dev/newstest2013
 
 mkdir -p $orig $tmp $prep
 
@@ -75,8 +83,6 @@ for ((i=0;i<${#URLS[@]};++i)); do
         fi
     fi
 done
-
-gunzip giga-fren.release2.fixed.*.gz
 cd ..
 
 echo "pre-processing train data..."
@@ -97,7 +103,7 @@ for l in $src $tgt; do
     else
         t="ref"
     fi
-    grep '<seg id' $orig/test-full/newstest2014-fren-$t.$l.sgm | \
+    grep '<seg id' $orig/test-full/newstest2014-deen-$t.$l.sgm | \
         sed -e 's/<seg id="[0-9]*">\s*//g' | \
         sed -e 's/\s*<\/seg>\s*//g' | \
         sed -e "s/\’/\'/g" | \
@@ -105,13 +111,19 @@ for l in $src $tgt; do
     echo ""
 done
 
-echo "splitting train and valid..."
+pwd
+
+echo "get dev set"
 for l in $src $tgt; do
-    awk '{if (NR%1333 == 0)  print $0; }' $tmp/train.tags.$lang.tok.$l > $tmp/valid.$l
-    awk '{if (NR%1333 != 0)  print $0; }' $tmp/train.tags.$lang.tok.$l > $tmp/train.$l
+    cp $orig/dev/newstest2013.$l $tmp/valid.$l
 done
 
-TRAIN=$tmp/train.fr-en
+for l in $src $tgt; do
+    awk '{ print $0; }' $tmp/train.tags.$lang.tok.$l > $tmp/train.$l
+done
+
+
+TRAIN=$tmp/train.de-en
 BPE_CODE=$prep/code
 rm -f $TRAIN
 for l in $src $tgt; do
@@ -129,24 +141,24 @@ for L in $src $tgt; do
 done
 
 perl $CLEAN -ratio 1.5 $tmp/bpe.train $src $tgt $prep/train 1 250
-perl $CLEAN -ratio 1.5 $tmp/bpe.valid $src $tgt $prep/valid 1 250
 
 for L in $src $tgt; do
+    cp $tmp/bpe.valid.$L $prep/valid.$L
     cp $tmp/bpe.test.$L $prep/test.$L
 done
 
 for L in $src $tgt; do
     echo "build dictionnary for ${L}"
-    python build_dictionnary.py train.$L
+    python build_dictionnary.py $prep/train.$L
 done
 
 echo "merge dict for train.${src}.json and train.${tgt}.json"
-python merge_dict.py train.$src.json train.$tgt.json
+python merge_dict.py $prep/train.$src.json $prep/train.$tgt.json ./
 
 
 for L in $src $tgt; do
     for f in train.$L valid.$L test.$L; do
         echo "transform file into ids to ${f}..."
-        python tokenized_to_ids.py vocabulary.json $f $f.ids.gz
+        python tokenized_to_ids.py $prep/vocabulary.json $prep/$f $prep/$f.ids.gz
     done
 done
