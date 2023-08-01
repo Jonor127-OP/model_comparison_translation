@@ -153,7 +153,7 @@ for L in $src $tgt; do
 done
 
 echo "merge dict for train.${src}.json and train.${tgt}.json"
-python merge_dict.py $prep/train.$src.json $prep/train.$tgt.json ./
+python merge_dict.py $prep/train.$src.json $prep/train.$tgt.json ./$prep
 
 
 for L in $src $tgt; do
