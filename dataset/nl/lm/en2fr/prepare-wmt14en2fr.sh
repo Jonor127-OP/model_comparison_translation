@@ -79,78 +79,78 @@ done
 gunzip giga-fren.release2.fixed.*.gz
 cd ..
 
-#echo "pre-processing train data..."
-#for l in $src $tgt; do
-#    rm $tmp/train.tags.$lang.tok.$l
-#    for f in "${CORPORA[@]}"; do
-#        cat $orig/$f.$l | \
-#            perl $NORM_PUNC $l | \
-#            perl $REM_NON_PRINT_CHAR | \
-#            perl $TOKENIZER -threads 8 -a -l $l >> $tmp/train.tags.$lang.tok.$l
-#    done
-#done
-#
-#echo "pre-processing test data..."
-#for l in $src $tgt; do
-#    if [ "$l" == "$src" ]; then
-#        t="src"
-#    else
-#        t="ref"
-#    fi
-#    grep '<seg id' $orig/test-full/newstest2014-deen-$t.$l.sgm | \
-#        sed -e 's/<seg id="[0-9]*">\s*//g' | \
-#        sed -e 's/\s*<\/seg>\s*//g' | \
-#        sed -e "s/\’/\'/g" | \
-#    perl $TOKENIZER -threads 8 -a -l $l > $tmp/test.$l
-#    echo ""
-#done
-#
-#pwd
-#
-#echo "get dev set"
-#for l in $src $tgt; do
-#    cp $orig/dev/newstest2013.$l $tmp/valid.$l
-#done
-#
-#for l in $src $tgt; do
-#    awk '{ print $0; }' $tmp/train.tags.$lang.tok.$l > $tmp/train.$l
-#done
-#
-#
-#TRAIN=$tmp/train.de-en
-#BPE_CODE=$prep/code
-#rm -f $TRAIN
-#for l in $src $tgt; do
-#    cat $tmp/train.$l >> $TRAIN
-#done
-#
-#echo "learn_bpe.py on ${TRAIN}..."
-#python $BPEROOT/learn_bpe.py -s $BPE_TOKENS < $TRAIN > $BPE_CODE
-#
-#for L in $src $tgt; do
-#    for f in train.$L valid.$L test.$L; do
-#        echo "apply_bpe.py to ${f}..."
-#        python $BPEROOT/apply_bpe.py -c $BPE_CODE < $tmp/$f > $tmp/bpe.$f
-#    done
-#done
-#
-#perl $CLEAN -ratio 1.5 $tmp/bpe.train $src $tgt $prep/train 1 250
-#
-#for L in $src $tgt; do
-#    cp $tmp/bpe.valid.$L $prep/valid.$L
-#    cp $tmp/bpe.test.$L $prep/test.$L
-#done
+echo "pre-processing train data..."
+for l in $src $tgt; do
+    rm $tmp/train.tags.$lang.tok.$l
+    for f in "${CORPORA[@]}"; do
+        cat $orig/$f.$l | \
+            perl $NORM_PUNC $l | \
+            perl $REM_NON_PRINT_CHAR | \
+            perl $TOKENIZER -threads 8 -a -l $l >> $tmp/train.tags.$lang.tok.$l
+    done
+done
 
-#pwd
-#
-#for L in 'train' 'valid' 'test'; do
-#    echo "merge source and target files for training LM to ${L}"
-#    python merge_src_tgt.py $prep/$L.en $prep/$L.fr $prep/$L.merge_en_fr
-#done
-#
+echo "pre-processing test data..."
+for l in $src $tgt; do
+    if [ "$l" == "$src" ]; then
+        t="src"
+    else
+        t="ref"
+    fi
+    grep '<seg id' $orig/test-full/newstest2014-deen-$t.$l.sgm | \
+        sed -e 's/<seg id="[0-9]*">\s*//g' | \
+        sed -e 's/\s*<\/seg>\s*//g' | \
+        sed -e "s/\’/\'/g" | \
+    perl $TOKENIZER -threads 8 -a -l $l > $tmp/test.$l
+    echo ""
+done
+
+pwd
+
+echo "get dev set"
+for l in $src $tgt; do
+    cp $orig/dev/newstest2013.$l $tmp/valid.$l
+done
+
+for l in $src $tgt; do
+    awk '{ print $0; }' $tmp/train.tags.$lang.tok.$l > $tmp/train.$l
+done
+
+
+TRAIN=$tmp/train.de-en
+BPE_CODE=$prep/code
+rm -f $TRAIN
+for l in $src $tgt; do
+    cat $tmp/train.$l >> $TRAIN
+done
+
+echo "learn_bpe.py on ${TRAIN}..."
+python $BPEROOT/learn_bpe.py -s $BPE_TOKENS < $TRAIN > $BPE_CODE
+
+for L in $src $tgt; do
+    for f in train.$L valid.$L test.$L; do
+        echo "apply_bpe.py to ${f}..."
+        python $BPEROOT/apply_bpe.py -c $BPE_CODE < $tmp/$f > $tmp/bpe.$f
+    done
+done
+
+perl $CLEAN -ratio 1.5 $tmp/bpe.train $src $tgt $prep/train 1 250
+
+for L in $src $tgt; do
+    cp $tmp/bpe.valid.$L $prep/valid.$L
+    cp $tmp/bpe.test.$L $prep/test.$L
+done
+
+pwd
+
+for L in 'train' 'valid' 'test'; do
+    echo "merge source and target files for training LM to ${L}"
+    python merge_src_tgt.py $prep/$L.en $prep/$L.fr $prep/$L.merge_en_fr
+done
+
 MERGE_FILE_TRAIN=train.merge_en_fr
-#echo "build dictionnary for ${L}"
-#python build_dictionnary.py $prep/$MERGE_FILE_TRAIN
+echo "build dictionnary for ${L}"
+python build_dictionnary.py $prep/$MERGE_FILE_TRAIN
 
 cp $prep/$MERGE_FILE_TRAIN.json $prep/vocabulary.json
 

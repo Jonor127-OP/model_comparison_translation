@@ -2,7 +2,7 @@
 <project version="4">
   <component name="VcsDirectoryMappings">
     <mapping directory="$PROJECT_DIR$" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/dataset/nl/mosesdecoder" vcs="Git" />
-    <mapping directory="$PROJECT_DIR$/dataset/nl/subword-nmt" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/dataset/nl/seq2seq/en2de/mosesdecoder" vcs="Git" />
+    <mapping directory="$PROJECT_DIR$/dataset/nl/seq2seq/en2de/subword-nmt" vcs="Git" />
   </component>
 </project>
