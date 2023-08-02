@@ -145,7 +145,7 @@ def train(dataset_option, finetuning):
             # print('inp_tgt', inp_tgt)
             # print('out_tgt', out_tgt)
 
-            tgt_mask = model.module.get_masks_and_count_tokens_trg(inp_tgt)
+            tgt_mask = model.get_masks_and_count_tokens_trg(inp_tgt)
 
             countdown += 1
 
@@ -186,7 +186,7 @@ def train(dataset_option, finetuning):
 
                 tgt_dev_input, tgt_dev_output = get_input_output_lm(tgt_dev, window=WINDOW_TRAINING)
 
-                sample = model.module.generate_greedy(tgt_dev_input, MAX_LEN, cuda=True)
+                sample = model.generate_greedy(tgt_dev_input, MAX_LEN, cuda=True)
 
                 # print(sample)
                 # print(sample.shape)
