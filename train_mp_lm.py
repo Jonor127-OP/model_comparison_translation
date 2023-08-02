@@ -81,10 +81,10 @@ def train(dataset_option, finetuning):
         train_data_path = 'dataset/nl/lm/en2de/wmt17_en_de/train.merge_en_de.ids.gz'
         valid_data_path = 'dataset/nl/lm/en2de/wmt17_en_de/valid.merge_en_de.ids.gz'
     elif dataset_option == 2:
-        train_data_path = 'dataset/nl/lm/en2fe/wmt14_en_fr/train.merge_en_fr.ids.gz'
-        valid_data_path = 'dataset/nl/lm/en2fe/wmt14_en_fr/valid.merge_en_fr.ids.gz'
+        train_data_path = 'dataset/nl/lm/en2fr/wmt14_en_fr/train.merge_en_fr.ids.gz'
+        valid_data_path = 'dataset/nl/lm/en2fr/wmt14_en_fr/valid.merge_en_fr.ids.gz'
     else:
-        raise ValueError("Invalid dataset option. Choose 1 for dataset/nl/lm/en2de/wmt17_en_de or 2 for dataset/nl/lm/en2fe/wmt14_en_fr.")
+        raise ValueError("Invalid dataset option. Choose 1 for dataset/nl/lm/en2de/wmt17_en_de or 2 for dataset/nl/lm/en2fr/wmt14_en_fr.")
 
     with gzip.open(train_data_path, 'r') as file:
         Y_train = file.read()
