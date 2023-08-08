@@ -51,10 +51,10 @@ def train(dataset_option, finetuning):
 
     # constants
 
-    EPOCHS = 30
+    EPOCHS = 100
     BATCH_SIZE = 10
     LEARNING_RATE = 1e-3
-    GENERATE_EVERY  = 1
+    GENERATE_EVERY  = 5
     MAX_LEN = 100
     WARMUP_STEP = 30000
     WINDOW_TRAINING = 0
@@ -109,7 +109,7 @@ def train(dataset_option, finetuning):
         Y_dev = Y_dev.decode(encoding='utf-8')
         Y_dev = Y_dev.split('\n')
         Y_dev = [np.array([int(x) for x in line.split()]) for line in Y_dev if line != '']
-        Y_dev = Y_dev[0:500]
+        Y_dev = Y_dev[0:10]
     
     train_dataset = TextSamplerDatasetLM(Y_dev, MAX_LEN)
     train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=8, shuffle=True,
@@ -197,8 +197,8 @@ def train(dataset_option, finetuning):
             target_bleu = [BPE_to_eval(sentence, lm=True) for sentence in target]
             predicted_bleu = [BPE_to_eval(sentence, lm=True) for sentence in predicted]
 
-            print('target_bleu', target_bleu)
-            print('predicted_bleu', predicted_bleu)
+            # print('target_bleu', target_bleu)
+            # print('predicted_bleu', predicted_bleu)
 
             bleu = sacrebleu.corpus_bleu(predicted_bleu, [target_bleu])
 
