@@ -197,8 +197,8 @@ def train(dataset_option, finetuning):
             target_bleu = [BPE_to_eval(sentence, lm=True) for sentence in target]
             predicted_bleu = [BPE_to_eval(sentence, lm=True) for sentence in predicted]
 
-            # print('target_bleu', target_bleu)
-            # print('predicted_bleu', predicted_bleu)
+            print('target_bleu', target_bleu)
+            print('predicted_bleu', predicted_bleu)
 
             bleu = sacrebleu.corpus_bleu(predicted_bleu, [target_bleu])
 
