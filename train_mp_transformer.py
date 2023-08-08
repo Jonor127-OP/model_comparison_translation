@@ -80,21 +80,17 @@ def train(dataset_option, finetuning):
     print('number of parameters:', count_parameters(model))
 
     if dataset_option == 1:
-        train_data_path1 = 'dataset/nl/seq2seq/en2de/wmt17_en_de/train.en.ids.gz'
-        train_data_path2 = 'dataset/nl/seq2seq/en2de/wmt17_en_de/train.de.ids.gz'
-
-        valid_data_path1 = 'dataset/nl/seq2seq/en2de/wmt17_en_de/valid.en.ids.gz'
-        valid_data_path2 = 'dataset/nl/seq2seq/en2de/wmt17_en_de/valid.de.ids.gz'
-
+        train_data_src_path = 'dataset/nl/seq2seq/wmt17_en_de/train.en.ids.gz'
+        train_data_tgt_path = 'dataset/nl/seq2seq/wmt17_en_de/train.de.ids.gz'
+        valid_data_src_path = 'dataset/nl/seq2seq/wmt17_en_de/valid.en.ids.gz'
+        valid_data_tgt_path = 'dataset/nl/seq2seq/wmt17_en_de/valid.de.ids.gz'
     elif dataset_option == 2:
-        train_data_path1 = 'dataset/nl/seq2seq/en2fr/wmt14_en_fr/train.en.ids.gz'
-        train_data_path2 = 'dataset/nl/seq2seq/en2fr/wmt14_en_fr/train.fr.ids.gz'
-
-        valid_data_path1 = 'dataset/nl/seq2seq/en2fr/wmt14_en_fr/valid.en.ids.gz'
-        valid_data_path2 = 'dataset/nl/seq2seq/en2fr/wmt14_en_fr/valid.fr.ids.gz'
+        train_data_src_path = 'dataset/nl/seq2seq/wmt14_en_fr/train.en.ids.gz'
+        train_data_tgt_path = 'dataset/nl/seq2seq/wmt14_en_fr/train.fr.ids.gz'
+        valid_data_src_path = 'dataset/nl/seq2seq/wmt14_en_fr/valid.en.ids.gz'
+        valid_data_tgt_path = 'dataset/nl/seq2seq/wmt14_en_fr/valid.fr.ids.gz'
     else:
-        raise ValueError("Invalid dataset option. Choose 1 for dataset/nl/lm/en2de/wmt17_en_de or 2 for dataset/nl/lm/en2fr/wmt14_en_fr.")
-
+        raise ValueError("Invalid dataset option. Choose 1 for wmt17_en_de or 2 for wmt14_en_fr.")
 
     # with gzip.open(train_data_path, 'r') as file:
     #     Y_train = file.read()
@@ -116,17 +112,25 @@ def train(dataset_option, finetuning):
     # dev_loader  = DataLoader(dev_dataset, batch_size=BATCH_SIZE, num_workers=8, collate_fn=MyCollateS2S(pad_idx=0))
 
     
-    with gzip.open(valid_data_path1, valid_data_path2, 'r') as file:
-        Y_dev = file.read()
-        Y_dev = Y_dev.decode(encoding='utf-8')
-        Y_dev = Y_dev.split('\n')
-        Y_dev = [np.array([int(x) for x in line.split()]) for line in Y_dev]
-        Y_dev = Y_dev[0:10]
-    
-    train_dataset = TextSamplerDatasetS2S(Y_dev, MAX_LEN)
-    train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=2, shuffle=True,
-                           pin_memory=True, collate_fn=MyCollateS2S(pad_idx=0))
-    dev_dataset = TextSamplerDatasetS2S(Y_dev, MAX_LEN)
+    # ...
+
+    with gzip.open(valid_data_src_path, 'r') as src_file, gzip.open(valid_data_tgt_path, 'r') as tgt_file:
+        X_dev_src = src_file.read()
+        X_dev_src = X_dev_src.decode(encoding='utf-8')
+        X_dev_src = X_dev_src.split('\n')
+        X_dev_src = [np.array([int(x) for x in line.split()]) for line in X_dev_src if line != '']
+
+        Y_dev_tgt = tgt_file.read()
+        Y_dev_tgt = Y_dev_tgt.decode(encoding='utf-8')
+        Y_dev_tgt = Y_dev_tgt.split('\n')
+        Y_dev_tgt = [np.array([int(x) for x in line.split()]) for line in Y_dev_tgt if line != '']
+
+        Y_dev_tgt = Y_dev_tgt[0:10]
+
+    train_dataset = TextSamplerDatasetS2S(X_dev_src, Y_dev_tgt, MAX_LEN)
+    train_loader  = DataLoader(train_dataset, batch_size=BATCH_SIZE, num_workers=2, shuffle=True,
+                            pin_memory=True, collate_fn=MyCollateS2S(pad_idx=0))
+    dev_dataset = TextSamplerDatasetS2S(X_dev_src, Y_dev_tgt, MAX_LEN)
     dev_loader  = DataLoader(dev_dataset, batch_size=BATCH_SIZE, num_workers=2, collate_fn=MyCollateS2S(pad_idx=0))
 
     model, optimizer, train_loader, dev_loader, scheduler = accelerator.prepare(model, optimizer, train_loader, dev_loader, scheduler)
