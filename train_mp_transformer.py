@@ -80,15 +80,15 @@ def train(dataset_option, finetuning):
     print('number of parameters:', count_parameters(model))
 
     if dataset_option == 1:
-        train_data_src_path = 'dataset/nl/seq2seq/wmt17_en_de/train.en.ids.gz'
-        train_data_tgt_path = 'dataset/nl/seq2seq/wmt17_en_de/train.de.ids.gz'
-        valid_data_src_path = 'dataset/nl/seq2seq/wmt17_en_de/valid.en.ids.gz'
-        valid_data_tgt_path = 'dataset/nl/seq2seq/wmt17_en_de/valid.de.ids.gz'
+        train_data_src_path = 'dataset/nl/seq2seq/en2de/wmt17_en_de/train.en.ids.gz'
+        train_data_tgt_path = 'dataset/nl/seq2seq/en2de/wmt17_en_de/train.de.ids.gz'
+        valid_data_src_path = 'dataset/nl/seq2seq/en2de/wmt17_en_de/valid.en.ids.gz'
+        valid_data_tgt_path = 'dataset/nl/seq2seq/en2de/wmt17_en_de/valid.de.ids.gz'
     elif dataset_option == 2:
-        train_data_src_path = 'dataset/nl/seq2seq/wmt14_en_fr/train.en.ids.gz'
-        train_data_tgt_path = 'dataset/nl/seq2seq/wmt14_en_fr/train.fr.ids.gz'
-        valid_data_src_path = 'dataset/nl/seq2seq/wmt14_en_fr/valid.en.ids.gz'
-        valid_data_tgt_path = 'dataset/nl/seq2seq/wmt14_en_fr/valid.fr.ids.gz'
+        train_data_src_path = 'dataset/nl/seq2seq/en2fr/wmt14_en_fr/train.en.ids.gz'
+        train_data_tgt_path = 'dataset/nl/seq2seq/en2fr/wmt14_en_fr/train.fr.ids.gz'
+        valid_data_src_path = 'dataset/nl/seq2seq/en2fr/wmt14_en_fr/valid.en.ids.gz'
+        valid_data_tgt_path = 'dataset/nl/seq2seq/en2fr/wmt14_en_fr/valid.fr.ids.gz'
     else:
         raise ValueError("Invalid dataset option. Choose 1 for wmt17_en_de or 2 for wmt14_en_fr.")
 
