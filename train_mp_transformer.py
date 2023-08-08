@@ -42,7 +42,7 @@ def train(dataset_option, finetuning):
 
     ddp_kwargs_1 = DistributedDataParallelKwargs(find_unused_parameters=True)
     ddp_kwargs_2 = InitProcessGroupKwargs(timeout=datetime.timedelta(seconds=5400))
-    accelerator = Accelerator(kwargs_handlers=[ddp_kwargs_1])
+    accelerator = Accelerator(kwargs_handlers=[ddp_kwargs_1, ddp_kwargs_2])
 
     with open(dataset_option, 'r') as f:
         vocabulary = json.load(f)
