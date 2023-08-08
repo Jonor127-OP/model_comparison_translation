@@ -27,7 +27,7 @@ def load_vocabulary(dataset_option):
     if dataset_option == 1:
         vocab_path = 'dataset/nl/seq2seq/en2de/wmt17_en_de/vocabulary.json'
     elif dataset_option == 2:
-        vocab_path = 'dataset/nl/seq2seq/en2fr/wmt14_en_fr/vocabulary.json'
+        vocab_path = 'dataset/nl/seq2seq/en2fr/vocabulary.json'
     else:
         raise ValueError("Invalid dataset option. Choose 1 for dataset/nl/seq2seq/en2de/wmt17_en_de or 2 for dataset/nl/seq2seq/en2fr/wmt14_en_fr.")
 
