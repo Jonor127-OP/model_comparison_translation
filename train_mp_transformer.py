@@ -1,3 +1,4 @@
+import argparse
 import gzip
 import numpy as np
 import tqdm
@@ -21,15 +22,29 @@ from accelerate import Accelerator, DistributedDataParallelKwargs, InitProcessGr
 
 import sacrebleu
 
-def train(finetuning):
+
+def load_vocabulary(dataset_option):
+    if dataset_option == 1:
+        vocab_path = 'dataset/nl/seq2seq/en2de/wmt17_en_de/vocabulary.json'
+    elif dataset_option == 2:
+        vocab_path = 'dataset/nl/seq2seq/en2fr/wmt14_en_fr/vocabulary.json'
+    else:
+        raise ValueError("Invalid dataset option. Choose 1 for dataset/nl/seq2seq/en2de/wmt17_en_de or 2 for dataset/nl/seq2seq/en2fr/wmt14_en_fr.")
+
+    with open(vocab_path, 'r') as f:
+        vocabulary = json.load(f)
+
+    return vocabulary
+
+def train(dataset_option, finetuning):
 
     print(torch.cuda.device_count())
 
-    # ddp_kwargs_1 = DistributedDataParallelKwargs(find_unused_parameters=True)
-    ddp_kwargs_1 = InitProcessGroupKwargs(timeout=datetime.timedelta(seconds=5400))
+    ddp_kwargs_1 = DistributedDataParallelKwargs(find_unused_parameters=True)
+    ddp_kwargs_2 = InitProcessGroupKwargs(timeout=datetime.timedelta(seconds=5400))
     accelerator = Accelerator(kwargs_handlers=[ddp_kwargs_1])
 
-    with open('dataset/nl/seq2seq/wmt17_en_de/vocabulary.json', 'r') as f:
+    with open(dataset_option, 'r') as f:
         vocabulary = json.load(f)
 
     reverse_vocab = {id: token for token, id in vocabulary.items()}
@@ -39,12 +54,12 @@ def train(finetuning):
 
     # constants
 
-    EPOCHS = 200
-    BATCH_SIZE = 32
-    LEARNING_RATE = 1e-4
-    GENERATE_EVERY  = 1
+    EPOCHS = 100
+    BATCH_SIZE = 10
+    LEARNING_RATE = 1e-3
+    GENERATE_EVERY  = 5
     MAX_LEN = 100
-    WARMUP_STEP = 50000
+    WARMUP_STEP = 0
 
     # Step 2: Prepare the model (original transformer) and push to GPU
     model = Transformer(
@@ -65,55 +80,47 @@ def train(finetuning):
 
     print('number of parameters:', count_parameters(model))
 
-    with gzip.open('dataset/nl/seq2seq/wmt17_en_de/train.en.ids.gz', 'r') as file:
-        X_train = file.read()
-        X_train = X_train.decode(encoding='utf-8')
-        X_train = X_train.split('\n')
-        X_train = [np.array([int(x) for x in line.split()]) for line in X_train if line != '']
-
-    with gzip.open('dataset/nl/seq2seq/wmt17_en_de/train.de.ids.gz', 'r') as file:
-        Y_train = file.read()
-        Y_train = Y_train.decode(encoding='utf-8')
-        Y_train = Y_train.split('\n')
-        Y_train = [np.array([int(x) for x in line.split()]) for line in Y_train if line != '']
-
-    with gzip.open('dataset/nl/seq2seq/wmt17_en_de/valid.en.ids.gz', 'r') as file:
-        X_dev = file.read()
-        X_dev = X_dev.decode(encoding='utf-8')
-        X_dev = X_dev.split('\n')
-        X_dev = [np.array([int(x) for x in line.split()]) for line in X_dev if line != '']
-
-    with gzip.open('dataset/nl/seq2seq/wmt17_en_de/valid.de.ids.gz', 'r') as file:
-        Y_dev = file.read()
-        Y_dev = Y_dev.decode(encoding='utf-8')
-        Y_dev = Y_dev.split('\n')
-        Y_dev = [np.array([int(x) for x in line.split()]) for line in Y_dev if line != '']
+    if dataset_option == 1:
+        train_data_path = 'dataset/nl/seq2seq/en2de/wmt17_en_de/train.merge_en_de.ids.gz'
+        valid_data_path = 'dataset/nl/seq2seq/en2de/wmt17_en_de/valid.merge_en_de.ids.gz'
+    elif dataset_option == 2:
+        train_data_path = 'dataset/nl/seq2seq/en2fr/wmt14_en_fr/train.merge_en_fr.ids.gz'
+        valid_data_path = 'dataset/nl/seq2seq/en2fr/wmt14_en_fr/valid.merge_en_fr.ids.gz'
+    else:
+        raise ValueError("Invalid dataset option. Choose 1 for dataset/nl/lm/en2de/wmt17_en_de or 2 for dataset/nl/lm/en2fr/wmt14_en_fr.")
 
 
-    train_dataset = TextSamplerDatasetS2S(X_train, Y_train, MAX_LEN)
-    train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=8, shuffle=True,
-                           pin_memory=True, collate_fn=MyCollateS2S(pad_idx=0))
-    dev_dataset = TextSamplerDatasetS2S(X_dev, Y_dev, MAX_LEN)
-    dev_loader  = DataLoader(dev_dataset, batch_size=BATCH_SIZE, num_workers=8, collate_fn=MyCollateS2S(pad_idx=0))
+    # with gzip.open(train_data_path, 'r') as file:
+    #     Y_train = file.read()
+    #     Y_train = Y_train.decode(encoding='utf-8')
+    #     Y_train = Y_train.split('\n')
+    #     Y_train = [np.array([int(x) for x in line.split()]) for line in Y_train if line != '']
 
-    with gzip.open('dataset/nl/seq2seq/wmt17_en_de/valid.en.ids.gz', 'r') as file:
-        X_dev = file.read()
-        X_dev = X_dev.decode(encoding='utf-8')
-        X_dev = X_dev.split('\n')
-        X_dev = [np.array([int(x) for x in line.split()]) for line in X_dev]
-        X_dev = X_dev[0:100]
+    # with gzip.open(valid_data_path, 'r') as file:
+    #     X_dev = file.read()
+    #     X_dev = X_dev.decode(encoding='utf-8')
+    #     X_dev = X_dev.split('\n')
+    #     X_dev = [np.array([int(x) for x in line.split()]) for line in X_dev if line != '']
+
+
+    # train_dataset = TextSamplerDatasetS2S(X_train, Y_train, MAX_LEN)
+    # train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=8, shuffle=True,
+    #                        pin_memory=True, collate_fn=MyCollateS2S(pad_idx=0))
+    # dev_dataset = TextSamplerDatasetS2S(X_dev, Y_dev, MAX_LEN)
+    # dev_loader  = DataLoader(dev_dataset, batch_size=BATCH_SIZE, num_workers=8, collate_fn=MyCollateS2S(pad_idx=0))
+
     
-    with gzip.open('dataset/nl/seq2seq/wmt17_en_de/valid.de.ids.gz', 'r') as file:
+    with gzip.open(valid_data_path, 'r') as file:
         Y_dev = file.read()
         Y_dev = Y_dev.decode(encoding='utf-8')
         Y_dev = Y_dev.split('\n')
         Y_dev = [np.array([int(x) for x in line.split()]) for line in Y_dev]
         Y_dev = Y_dev[0:100]
     
-    train_dataset = TextSamplerDatasetS2S(X_dev, Y_dev, MAX_LEN)
+    train_dataset = TextSamplerDatasetS2S(Y_dev, MAX_LEN)
     train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=2, shuffle=True,
                            pin_memory=True, collate_fn=MyCollateS2S(pad_idx=0))
-    dev_dataset = TextSamplerDatasetS2S(X_dev, Y_dev, MAX_LEN)
+    dev_dataset = TextSamplerDatasetS2S(Y_dev, MAX_LEN)
     dev_loader  = DataLoader(dev_dataset, batch_size=BATCH_SIZE, num_workers=2, collate_fn=MyCollateS2S(pad_idx=0))
 
     model, optimizer, train_loader, dev_loader, scheduler = accelerator.prepare(model, optimizer, train_loader, dev_loader, scheduler)
@@ -122,7 +129,7 @@ def train(finetuning):
         print('finetune')
         model.load_state_dict(
             torch.load(
-                'output/model_lm.pt',
+                'output/model_lm_%.pt'.format(dataset_option),
             ),
         )
 
@@ -223,4 +230,9 @@ def train(finetuning):
 
 
 if __name__ == '__main__':
-    train(finetuning=False)
+    parser = argparse.ArgumentParser(description='Language Model Training')
+    parser.add_argument('--dataset', type=int, choices=[1, 2], default=1, help='Dataset option: 1 for dataset/nl/seq2seq/en2de/wmt17_en_de, 2 for dataset/nl/seq2seq/en2fr/wmt14_en_fr')
+    parser.add_argument('--finetuning', action='store_true', help='Whether to perform finetuning using the pre-trained model')
+    args = parser.parse_args()
+
+    train(args.dataset, args.finetuning)
