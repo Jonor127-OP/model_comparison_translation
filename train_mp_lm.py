@@ -56,7 +56,7 @@ def train(dataset_option, finetuning):
     LEARNING_RATE = 1e-3
     GENERATE_EVERY  = 5
     MAX_LEN = 100
-    WARMUP_STEP = 30000
+    WARMUP_STEP = 0
     WINDOW_TRAINING = 0
 
     # Step 2: Prepare the model (original transformer) and push to GPU
