@@ -96,25 +96,25 @@ def train(finetuning):
     dev_dataset = TextSamplerDatasetS2S(X_dev, Y_dev, MAX_LEN)
     dev_loader  = DataLoader(dev_dataset, batch_size=BATCH_SIZE, num_workers=8, collate_fn=MyCollateS2S(pad_idx=0))
 
-    # with gzip.open('dataset/nl/seq2seq/wmt17_en_de/valid.en.ids.gz', 'r') as file:
-    #     X_dev = file.read()
-    #     X_dev = X_dev.decode(encoding='utf-8')
-    #     X_dev = X_dev.split('\n')
-    #     X_dev = [np.array([int(x) for x in line.split()]) for line in X_dev]
-    #     X_dev = X_dev[0:100]
-    #
-    # with gzip.open('dataset/nl/seq2seq/wmt17_en_de/valid.de.ids.gz', 'r') as file:
-    #     Y_dev = file.read()
-    #     Y_dev = Y_dev.decode(encoding='utf-8')
-    #     Y_dev = Y_dev.split('\n')
-    #     Y_dev = [np.array([int(x) for x in line.split()]) for line in Y_dev]
-    #     Y_dev = Y_dev[0:100]
-    #
-    # train_dataset = TextSamplerDatasetS2S(X_dev, Y_dev, MAX_LEN)
-    # train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=2, shuffle=True,
-    #                        pin_memory=True, collate_fn=MyCollateS2S(pad_idx=0))
-    # dev_dataset = TextSamplerDatasetS2S(X_dev, Y_dev, MAX_LEN)
-    # dev_loader  = DataLoader(dev_dataset, batch_size=BATCH_SIZE, num_workers=2, collate_fn=MyCollateS2S(pad_idx=0))
+    with gzip.open('dataset/nl/seq2seq/wmt17_en_de/valid.en.ids.gz', 'r') as file:
+        X_dev = file.read()
+        X_dev = X_dev.decode(encoding='utf-8')
+        X_dev = X_dev.split('\n')
+        X_dev = [np.array([int(x) for x in line.split()]) for line in X_dev]
+        X_dev = X_dev[0:100]
+    
+    with gzip.open('dataset/nl/seq2seq/wmt17_en_de/valid.de.ids.gz', 'r') as file:
+        Y_dev = file.read()
+        Y_dev = Y_dev.decode(encoding='utf-8')
+        Y_dev = Y_dev.split('\n')
+        Y_dev = [np.array([int(x) for x in line.split()]) for line in Y_dev]
+        Y_dev = Y_dev[0:100]
+    
+    train_dataset = TextSamplerDatasetS2S(X_dev, Y_dev, MAX_LEN)
+    train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=2, shuffle=True,
+                           pin_memory=True, collate_fn=MyCollateS2S(pad_idx=0))
+    dev_dataset = TextSamplerDatasetS2S(X_dev, Y_dev, MAX_LEN)
+    dev_loader  = DataLoader(dev_dataset, batch_size=BATCH_SIZE, num_workers=2, collate_fn=MyCollateS2S(pad_idx=0))
 
     model, optimizer, train_loader, dev_loader, scheduler = accelerator.prepare(model, optimizer, train_loader, dev_loader, scheduler)
 
@@ -147,7 +147,7 @@ def train(finetuning):
             # print('inp_tgt', inp_tgt)
             # print('out_tgt', out_tgt)
 
-            tgt_mask = model.module.get_masks_and_count_tokens_trg(inp_tgt)
+            tgt_mask = model.get_masks_and_count_tokens_trg(inp_tgt)
 
             countdown += 1
 
@@ -189,7 +189,7 @@ def train(finetuning):
                 src_mask = src_dev != 0
                 src_mask = src_mask[:, None, None, :]
 
-                sample = model.module.generate_greedy(src_dev, src_mask, MAX_LEN)
+                sample = model.generate_greedy(src_dev, src_mask, MAX_LEN)
 
                 # sample = accelerator.gather(sample)
                 # tgt_dev = accelerator.gather(tgt_dev)
@@ -216,7 +216,7 @@ def train(finetuning):
             if bleu > best_bleu:
                 best_bleu = bleu
                 torch.save(model.state_dict(),
-                           'output/model_seq2seq.pt'
+                           'output/model_seq2seq_%.pt'.format()
                            )
 
                 torch.save(optimizer.state_dict(), 'output/optim_seq2seq.bin')

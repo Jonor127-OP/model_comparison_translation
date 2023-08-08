@@ -1,3 +1,4 @@
+import argparse
 import gzip
 import numpy as np
 import tqdm
@@ -21,7 +22,20 @@ from accelerate import Accelerator, DistributedDataParallelKwargs, InitProcessGr
 
 import sacrebleu
 
-def train(finetuning):
+def load_vocabulary(dataset_option):
+    if dataset_option == 1:
+        vocab_path = 'dataset/nl/lm/en2de/wmt17_en_de/vocabulary.json'
+    elif dataset_option == 2:
+        vocab_path = 'dataset/nl/lm/en2fr/wmt14_en_fr/vocabulary.json'
+    else:
+        raise ValueError("Invalid dataset option. Choose 1 for dataset/nl/lm/en2de/wmt17_en_de or 2 for dataset/nl/lm/en2fr/wmt14_en_fr.")
+
+    with open(vocab_path, 'r') as f:
+        vocabulary = json.load(f)
+
+    return vocabulary
+
+def train(dataset_option, finetuning):
 
     print(torch.cuda.device_count())
 
@@ -29,9 +43,7 @@ def train(finetuning):
     ddp_kwargs_2 = InitProcessGroupKwargs(timeout=datetime.timedelta(seconds=5400))
     accelerator = Accelerator(kwargs_handlers=[ddp_kwargs_1, ddp_kwargs_2])
 
-    with open('dataset/nl/lm/wmt17_en_de/vocabulary.json', 'r') as f:
-        vocabulary = json.load(f)
-
+    vocabulary = load_vocabulary(dataset_option)
     reverse_vocab = {id: token for token, id in vocabulary.items()}
 
     # Get the size of the JSON object
@@ -39,12 +51,12 @@ def train(finetuning):
 
     # constants
 
-    EPOCHS = 30
-    BATCH_SIZE = 96
+    EPOCHS = 100
+    BATCH_SIZE = 10
     LEARNING_RATE = 1e-3
-    GENERATE_EVERY  = 1
-    MAX_LEN = 250
-    WARMUP_STEP = 30000
+    GENERATE_EVERY  = 5
+    MAX_LEN = 100
+    WARMUP_STEP = 0
     WINDOW_TRAINING = 0
 
     # Step 2: Prepare the model (original transformer) and push to GPU
@@ -65,39 +77,45 @@ def train(finetuning):
 
     print('number of parameters:', count_parameters(model))
 
-    with gzip.open('dataset/nl/lm/wmt17_en_de/train.merge_en_de.ids.gz', 'r') as file:
-        Y_train = file.read()
-        Y_train = Y_train.decode(encoding='utf-8')
-        Y_train = Y_train.split('\n')
-        Y_train = [np.array([int(x) for x in line.split()]) for line in Y_train if line != '']
+    if dataset_option == 1:
+        train_data_path = 'dataset/nl/lm/en2de/wmt17_en_de/train.merge_en_de.ids.gz'
+        valid_data_path = 'dataset/nl/lm/en2de/wmt17_en_de/valid.merge_en_de.ids.gz'
+    elif dataset_option == 2:
+        train_data_path = 'dataset/nl/lm/en2fr/wmt14_en_fr/train.merge_en_fr.ids.gz'
+        valid_data_path = 'dataset/nl/lm/en2fr/wmt14_en_fr/valid.merge_en_fr.ids.gz'
+    else:
+        raise ValueError("Invalid dataset option. Choose 1 for dataset/nl/lm/en2de/wmt17_en_de or 2 for dataset/nl/lm/en2fr/wmt14_en_fr.")
 
-    with gzip.open('dataset/nl/lm/wmt17_en_de/valid.merge_en_de.ids.gz', 'r') as file:
-        Y_dev = file.read()
-        Y_dev = Y_dev.decode(encoding='utf-8')
-        Y_dev = Y_dev.split('\n')
-        Y_dev = [np.array([int(x) for x in line.split()]) for line in Y_dev if line != '']
+    # with gzip.open(train_data_path, 'r') as file:
+    #     Y_train = file.read()
+    #     Y_train = Y_train.decode(encoding='utf-8')
+    #     Y_train = Y_train.split('\n')
+    #     Y_train = [np.array([int(x) for x in line.split()]) for line in Y_train if line != '']
 
-
-    train_dataset = TextSamplerDatasetLM(Y_train, MAX_LEN)
-    train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=8, shuffle=True,
-                           pin_memory=True, collate_fn=MyCollateLM(pad_idx=0))
-    dev_dataset = TextSamplerDatasetLM(Y_dev, MAX_LEN)
-    dev_loader  = DataLoader(dev_dataset, batch_size=BATCH_SIZE, num_workers=8, collate_fn=MyCollateLM(pad_idx=0))
-
-    # with gzip.open('dataset/nl/lm/wmt17_en_de/valid.merge_en_de.ids.gz', 'r') as file:
+    # with gzip.open(valid_data_path, 'r') as file:
     #     Y_dev = file.read()
     #     Y_dev = Y_dev.decode(encoding='utf-8')
     #     Y_dev = Y_dev.split('\n')
     #     Y_dev = [np.array([int(x) for x in line.split()]) for line in Y_dev if line != '']
-    #     Y_dev =Y_dev[0:500]
-    #
-    #
-    # train_dataset = TextSamplerDatasetLM(Y_dev, MAX_LEN)
+
+    # train_dataset = TextSamplerDatasetLM(Y_train, MAX_LEN)
     # train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=8, shuffle=True,
     #                        pin_memory=True, collate_fn=MyCollateLM(pad_idx=0))
     # dev_dataset = TextSamplerDatasetLM(Y_dev, MAX_LEN)
-    # dev_loader  = DataLoader(dev_dataset, batch_size=1, num_workers=8, collate_fn=MyCollateLM(pad_idx=0))
+    # dev_loader  = DataLoader(dev_dataset, batch_size=BATCH_SIZE, num_workers=8, collate_fn=MyCollateLM(pad_idx=0))
 
+    with gzip.open(valid_data_path, 'r') as file:
+        Y_dev = file.read()
+        Y_dev = Y_dev.decode(encoding='utf-8')
+        Y_dev = Y_dev.split('\n')
+        Y_dev = [np.array([int(x) for x in line.split()]) for line in Y_dev if line != '']
+        Y_dev = Y_dev[0:10]
+    
+    train_dataset = TextSamplerDatasetLM(Y_dev, MAX_LEN)
+    train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=8, shuffle=True,
+                           pin_memory=True, collate_fn=MyCollateLM(pad_idx=0))
+    dev_dataset = TextSamplerDatasetLM(Y_dev, MAX_LEN)
+    dev_loader  = DataLoader(dev_dataset, batch_size=1, num_workers=8, collate_fn=MyCollateLM(pad_idx=0))
 
     model, optimizer, train_loader, dev_loader, scheduler= accelerator.prepare(model, optimizer, train_loader, dev_loader, scheduler)
 
@@ -105,7 +123,7 @@ def train(finetuning):
         print('finetune')
         model.load_state_dict(
             torch.load(
-                'output/model_lm.pt',
+                'output/model_lm_%.pt'.format(dataset_option),
             ),
         )
 
@@ -127,7 +145,7 @@ def train(finetuning):
             # print('inp_tgt', inp_tgt)
             # print('out_tgt', out_tgt)
 
-            tgt_mask = model.module.get_masks_and_count_tokens_trg(inp_tgt)
+            tgt_mask = model.get_masks_and_count_tokens_trg(inp_tgt)
 
             countdown += 1
 
@@ -168,7 +186,7 @@ def train(finetuning):
 
                 tgt_dev_input, tgt_dev_output = get_input_output_lm(tgt_dev, window=WINDOW_TRAINING)
 
-                sample = model.module.generate_greedy(tgt_dev_input, MAX_LEN, cuda=True)
+                sample = model.generate_greedy(tgt_dev_input, MAX_LEN, cuda=True)
 
                 # print(sample)
                 # print(sample.shape)
@@ -195,11 +213,15 @@ def train(finetuning):
             if bleu > best_bleu:
                 best_bleu = bleu
                 torch.save(model.state_dict(),
-                           'output/model_lm.pt'
+                           'output/model_lm_%.pt'.format(dataset_option)
                            )
 
                 torch.save(optimizer.state_dict(), 'output/optim_lm.bin')
 
-
 if __name__ == '__main__':
-    train(finetuning=False)
+    parser = argparse.ArgumentParser(description='Language Model Training')
+    parser.add_argument('--dataset', type=int, choices=[1, 2], default=1, help='Dataset option: 1 for dataset/nl/lm/en2de/wmt17_en_de, 2 for dataset/nl/lm/en2fr/wmt14_en_fr')
+    parser.add_argument('--finetuning', action='store_true', help='Whether to perform finetuning using the pre-trained model')
+    args = parser.parse_args()
+
+    train(args.dataset, args.finetuning)

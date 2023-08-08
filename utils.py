@@ -142,8 +142,8 @@ def get_input_output_lm(x, sep_id=4, window=0):
 
     # Find the indices where the ID occurs
     indices = torch.where(x[0] == sep_id)[0]
-    print(x)
-    print(indices)
+    print('x', x)
+    print('indices', indices)
 
     # Split the tensor at these indices
     splits = []
