@@ -23,7 +23,7 @@ import sacrebleu
 
 def train(finetuning):
 
-    with open('dataset/nl/lm/wmt17_en_de/vocabulary.json', 'r') as f:
+    with open('dataset/nl/lm/en2de/wmt17_en_de/vocabulary.json', 'r') as f:
         vocabulary = json.load(f)
 
     reverse_vocab = {id: token for token, id in vocabulary.items()}
@@ -34,10 +34,10 @@ def train(finetuning):
     # constants
 
     EPOCHS = 210
-    BATCH_SIZE = 50
-    LEARNING_RATE = 1e-4
-    GENERATE_EVERY  = 1
-    MAX_LEN = 200
+    BATCH_SIZE = 1
+    LEARNING_RATE = 1e-3
+    GENERATE_EVERY  = 10
+    MAX_LEN = 100
     WARMUP_STEP = 0
     WINDOW_TRAINING = 0
 
@@ -78,12 +78,12 @@ def train(finetuning):
     # dev_dataset = TextSamplerDatasetLM(Y_dev, MAX_LEN)
     # dev_loader  = DataLoader(dev_dataset, batch_size=BATCH_SIZE, num_workers=8, collate_fn=MyCollateLM(pad_idx=0))
 
-    with gzip.open('dataset/nl/lm/wmt17_en_de/valid.merge_en_de.ids.gz', 'r') as file:
+    with gzip.open('dataset/nl/lm/en2de/wmt17_en_de/valid.merge_en_de.ids.gz', 'r') as file:
         Y_train = file.read()
         Y_train = Y_train.decode(encoding='utf-8')
         Y_train = Y_train.split('\n')
         Y_train = [np.array([int(x) for x in line.split()]) for line in Y_train if line != '<sep>']
-        Y_train = Y_train[0:50]
+        Y_train = Y_train[0:10]
 
     train_dataset = TextSamplerDatasetLM(Y_train, MAX_LEN)
     train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=1, shuffle=True,
@@ -122,7 +122,10 @@ def train(finetuning):
             countdown += 1
 
             predicted_log_distributions = model(inp_tgt, tgt_mask)
-
+            print(predicted_log_distributions[:, 0, 3912])
+            print(predicted_log_distributions[:, 0, 472])
+            print(predicted_log_distributions[:, 0, 11489])
+            print(predicted_log_distributions[:, 0, 1357])
             # print('predicted_log_distributions', predicted_log_distributions)
 
             a = predicted_log_distributions.view(-1, NUM_TOKENS)
@@ -161,8 +164,9 @@ def train(finetuning):
                 tgt_dev_input, tgt_dev_output = get_input_output_lm(tgt_dev, window=WINDOW_TRAINING)
 
                 sample = model.generate_greedy(tgt_dev_input, MAX_LEN, cuda=False)
+                print('sample', sample)
 
-                target.append([ids_to_tokens(tgt_dev_output.tolist()[0][1:], vocabulary)])
+                target.append([ids_to_tokens(tgt_dev_output.tolist()[0][:], vocabulary)])
                 predicted.append([ids_to_tokens(sample.tolist()[0][1:], vocabulary)])
 
             target_bleu = [BPE_to_eval(sentence, lm=True) for sentence in target]
@@ -191,4 +195,4 @@ def train(finetuning):
 
 
 if __name__ == '__main__':
-    train(finetuning=False)
+    train(finetuning=True)

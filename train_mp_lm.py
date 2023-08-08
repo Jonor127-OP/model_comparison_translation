@@ -173,7 +173,7 @@ def train(finetuning):
                 # print(sample)
                 # print(sample.shape)
 
-                target.append([ids_to_tokens(tgt_dev_output.tolist()[0][1:], vocabulary)])
+                target.append([ids_to_tokens(tgt_dev_output.tolist()[0][:], vocabulary)])
                 predicted.append([ids_to_tokens(sample.tolist()[0][1:], vocabulary)])
 
             target_bleu = [BPE_to_eval(sentence, lm=True) for sentence in target]
