@@ -80,11 +80,18 @@ def train(dataset_option, finetuning):
     print('number of parameters:', count_parameters(model))
 
     if dataset_option == 1:
-        train_data_path = 'dataset/nl/seq2seq/en2de/wmt17_en_de/train.merge_en_de.ids.gz'
-        valid_data_path = 'dataset/nl/seq2seq/en2de/wmt17_en_de/valid.merge_en_de.ids.gz'
+        train_data_path1 = 'dataset/nl/seq2seq/en2de/wmt17_en_de/train.en.ids.gz'
+        train_data_path2 = 'dataset/nl/seq2seq/en2de/wmt17_en_de/train.de.ids.gz'
+
+        valid_data_path1 = 'dataset/nl/seq2seq/en2de/wmt17_en_de/valid.en.ids.gz'
+        valid_data_path2 = 'dataset/nl/seq2seq/en2de/wmt17_en_de/valid.de.ids.gz'
+
     elif dataset_option == 2:
-        train_data_path = 'dataset/nl/seq2seq/en2fr/wmt14_en_fr/train.merge_en_fr.ids.gz'
-        valid_data_path = 'dataset/nl/seq2seq/en2fr/wmt14_en_fr/valid.merge_en_fr.ids.gz'
+        train_data_path1 = 'dataset/nl/seq2seq/en2fr/wmt14_en_fr/train.en.ids.gz'
+        train_data_path2 = 'dataset/nl/seq2seq/en2fr/wmt14_en_fr/train.fr.ids.gz'
+
+        valid_data_path1 = 'dataset/nl/seq2seq/en2fr/wmt14_en_fr/valid.en.ids.gz'
+        valid_data_path2 = 'dataset/nl/seq2seq/en2fr/wmt14_en_fr/valid.fr.ids.gz'
     else:
         raise ValueError("Invalid dataset option. Choose 1 for dataset/nl/lm/en2de/wmt17_en_de or 2 for dataset/nl/lm/en2fr/wmt14_en_fr.")
 
@@ -109,12 +116,12 @@ def train(dataset_option, finetuning):
     # dev_loader  = DataLoader(dev_dataset, batch_size=BATCH_SIZE, num_workers=8, collate_fn=MyCollateS2S(pad_idx=0))
 
     
-    with gzip.open(valid_data_path, 'r') as file:
+    with gzip.open(valid_data_path1, valid_data_path2, 'r') as file:
         Y_dev = file.read()
         Y_dev = Y_dev.decode(encoding='utf-8')
         Y_dev = Y_dev.split('\n')
         Y_dev = [np.array([int(x) for x in line.split()]) for line in Y_dev]
-        Y_dev = Y_dev[0:100]
+        Y_dev = Y_dev[0:10]
     
     train_dataset = TextSamplerDatasetS2S(Y_dev, MAX_LEN)
     train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=2, shuffle=True,
