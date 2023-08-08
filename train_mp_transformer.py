@@ -119,6 +119,7 @@ def train(dataset_option, finetuning):
         X_dev_src = X_dev_src.decode(encoding='utf-8')
         X_dev_src = X_dev_src.split('\n')
         X_dev_src = [np.array([int(x) for x in line.split()]) for line in X_dev_src if line != '']
+        X_dev_src = X_dev_src[0:10]
 
         Y_dev_tgt = tgt_file.read()
         Y_dev_tgt = Y_dev_tgt.decode(encoding='utf-8')
