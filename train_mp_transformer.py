@@ -234,7 +234,7 @@ def train(dataset_option, finetuning):
             if bleu > best_bleu:
                 best_bleu = bleu
                 torch.save(model.state_dict(),
-                           'output/model_seq2seq_%.pt'.format()
+                           'output/model_seq2seq_bleudev=%.pt'.format(bleu)
                            )
 
                 torch.save(optimizer.state_dict(), 'output/optim_seq2seq.bin')
