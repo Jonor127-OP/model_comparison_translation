@@ -270,7 +270,7 @@ def train(dataset_option, finetuning):
 
                 torch.save(optimizer.state_dict(), folder_path + 'optimizer.bin')
 
-                        # tensorboard save metrics
+            # tensorboard save metrics
             tensorboard_writer.add_scalar('Train/Loss', count_loss, i)
 
             if i != 0 and i % GENERATE_EVERY == 0:
