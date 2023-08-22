@@ -140,7 +140,7 @@ def train(dataset_option, finetuning):
         print('finetune')
         model.load_state_dict(
             torch.load(
-                'output/model_lm_%.pt'.format(dataset_option),
+                'output/model_seq2seq_bleudev=1.8400125950169999.pt'.format(dataset_option),
             ),
         )
 
