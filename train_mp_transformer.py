@@ -5,6 +5,8 @@ import tqdm
 import json
 import time
 import datetime
+import os
+import random
 
 import torch
 from torch import nn
@@ -39,6 +41,7 @@ def load_vocabulary(dataset_option):
 def train(dataset_option, finetuning):
 
     print(torch.cuda.device_count())
+    
 
     ddp_kwargs_1 = DistributedDataParallelKwargs(find_unused_parameters=True)
     ddp_kwargs_2 = InitProcessGroupKwargs(timeout=datetime.timedelta(seconds=5400))
@@ -59,6 +62,17 @@ def train(dataset_option, finetuning):
     GENERATE_EVERY  = 5
     MAX_LEN = 100
     WARMUP_STEP = 0
+
+    SEED = 1234
+    random.seed(SEED)
+    np.random.seed(SEED)
+    torch.manual_seed(SEED)
+    torch.cuda.manual_seed(SEED)
+    torch.backends.cudnn.deterministic = True
+
+   
+
+    
 
     # Step 2: Prepare the model (original transformer) and push to GPU
     model = Transformer(
@@ -84,13 +98,26 @@ def train(dataset_option, finetuning):
         train_data_tgt_path = 'dataset/nl/seq2seq/en2de/wmt17_en_de/train.de.ids.gz'
         valid_data_src_path = 'dataset/nl/seq2seq/en2de/wmt17_en_de/valid.en.ids.gz'
         valid_data_tgt_path = 'dataset/nl/seq2seq/en2de/wmt17_en_de/valid.de.ids.gz'
+
+    
+
+        folder_path = './output/transformer/en2de/' + str(SEED) + str('/')
+
     elif dataset_option == 2:
         train_data_src_path = 'dataset/nl/seq2seq/en2fr/wmt14_en_fr/train.en.ids.gz'
         train_data_tgt_path = 'dataset/nl/seq2seq/en2fr/wmt14_en_fr/train.fr.ids.gz'
         valid_data_src_path = 'dataset/nl/seq2seq/en2fr/wmt14_en_fr/valid.en.ids.gz'
         valid_data_tgt_path = 'dataset/nl/seq2seq/en2fr/wmt14_en_fr/valid.fr.ids.gz'
+
+        folder_path = './output/transformer/en2fr/' + str(SEED) + str('/')
     else:
         raise ValueError("Invalid dataset option. Choose 1 for wmt17_en_de or 2 for wmt14_en_fr.")
+        
+    if not os.path.exists(folder_path):
+        os.makedirs(folder_path)    
+        print(f"Folder '{folder_path}' created.")
+    else:
+        print(f"Folder '{folder_path}' already exists.")
 
     # with gzip.open(train_data_path, 'r') as file:
     #     Y_train = file.read()
@@ -140,7 +167,7 @@ def train(dataset_option, finetuning):
         print('finetune')
         model.load_state_dict(
             torch.load(
-                'output/model_seq2seq_bleudev=1.8400125950169999.pt'.format(dataset_option),
+                folder_path + 'model.pt'
             ),
         )
 
@@ -234,10 +261,10 @@ def train(dataset_option, finetuning):
             if bleu > best_bleu:
                 best_bleu = bleu
                 torch.save(model.state_dict(),
-                           'output/model_seq2seq_bleudev={0}.pt'.format(bleu)
+                           folder_path + 'model.pt'
                            )
 
-                torch.save(optimizer.state_dict(), 'output/optim_seq2seq.bin')
+                torch.save(optimizer.state_dict(), folder_path + 'optimizer.bin')
 
 
 if __name__ == '__main__':
