@@ -11,6 +11,9 @@ import random
 import torch
 from torch import nn
 
+from torch.utils.tensorboard import SummaryWriter
+
+
 from transformers.optimization import get_constant_schedule_with_warmup
 from model.optimizer import get_optimizer
 
@@ -72,8 +75,6 @@ def train(dataset_option, finetuning):
 
    
 
-    
-
     # Step 2: Prepare the model (original transformer) and push to GPU
     model = Transformer(
         model_dimension=512,
@@ -118,6 +119,9 @@ def train(dataset_option, finetuning):
         print(f"Folder '{folder_path}' created.")
     else:
         print(f"Folder '{folder_path}' already exists.")
+
+    # Create SummaryWriter to save  TensorBoard logs
+    tensorboard_writer = SummaryWriter(log_dir=folder_path + 'logs/')
 
     # with gzip.open(train_data_path, 'r') as file:
     #     Y_train = file.read()
@@ -265,6 +269,13 @@ def train(dataset_option, finetuning):
                            )
 
                 torch.save(optimizer.state_dict(), folder_path + 'optimizer.bin')
+
+                        # tensorboard save metrics
+            tensorboard_writer.add_scalar('Train/Loss', count_loss, i)
+
+            if i != 0 and i % GENERATE_EVERY == 0:
+                tensorboard_writer.add_scalar('Validation/BLEU', bleu, i)
+
 
 
 if __name__ == '__main__':
