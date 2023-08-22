@@ -1,14 +1,18 @@
 #!/bin/bash
 
-#SBATCH --job-name=retrocode
+#SBATCH --job-name=getdata
 
-#SBATCH --output=./logfiles/logfile_conala_seq_finetuneemb.out
+#SBATCH --qos=qos_gpu-t3
 
-#SBATCH --error=./logfiles/logfile_conala_seq__finetuneemb.err
+#SBATCH --output=./logfiles/logfile_wmt_lm.out
 
-#SBATCH --time=08:30:00
+#SBATCH --error=./logfiles/logfile_wmt_lm.err
+
+#SBATCH --time=09:00:00
 
 #SBATCH --ntasks=1
+
+#SBATCH --gres=gpu:1
 
 #SBATCH --cpus-per-task=40
 
