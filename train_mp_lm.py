@@ -5,6 +5,8 @@ import tqdm
 import json
 import time
 import datetime
+import os
+import random
 
 import torch
 from torch import nn
@@ -59,6 +61,14 @@ def train(dataset_option, finetuning):
     WARMUP_STEP = 0
     WINDOW_TRAINING = 0
 
+    SEED = 1234
+    random.seed(SEED)
+    np.random.seed(SEED)
+    torch.manual_seed(SEED)
+    torch.cuda.manual_seed(SEED)
+    torch.backends.cudnn.deterministic = True
+
+
     # Step 2: Prepare the model (original transformer) and push to GPU
     model = LanguageModel(
         model_dimension=512,
@@ -80,12 +90,22 @@ def train(dataset_option, finetuning):
     if dataset_option == 1:
         train_data_path = 'dataset/nl/lm/en2de/wmt17_en_de/train.merge_en_de.ids.gz'
         valid_data_path = 'dataset/nl/lm/en2de/wmt17_en_de/valid.merge_en_de.ids.gz'
+
+        folder_path = './output/lm/en2de/' + str(SEED) + str('/')
+
     elif dataset_option == 2:
         train_data_path = 'dataset/nl/lm/en2fr/wmt14_en_fr/train.merge_en_fr.ids.gz'
         valid_data_path = 'dataset/nl/lm/en2fr/wmt14_en_fr/valid.merge_en_fr.ids.gz'
+
+        folder_path = './output/lm/en2fr/' + str(SEED) + str('/')
     else:
         raise ValueError("Invalid dataset option. Choose 1 for dataset/nl/lm/en2de/wmt17_en_de or 2 for dataset/nl/lm/en2fr/wmt14_en_fr.")
-
+    
+    if not os.path.exists(folder_path):
+            os.makedirs(folder_path)    
+            print(f"Folder '{folder_path}' created.")
+    else:
+            print(f"Folder '{folder_path}' already exists.")
     # with gzip.open(train_data_path, 'r') as file:
     #     Y_train = file.read()
     #     Y_train = Y_train.decode(encoding='utf-8')
@@ -123,7 +143,7 @@ def train(dataset_option, finetuning):
         print('finetune')
         model.load_state_dict(
             torch.load(
-                'output/model_lm_%.pt'.format(dataset_option),
+                folder_path + 'model.pt'
             ),
         )
 
@@ -191,7 +211,7 @@ def train(dataset_option, finetuning):
                 # print(sample)
                 # print(sample.shape)
 
-                target.append([ids_to_tokens(tgt_dev_output.tolist()[0][:], vocabulary)])
+                target.append([ids_to_tokens(tgt_dev_output.tolist()[0][1:], vocabulary)])
                 predicted.append([ids_to_tokens(sample.tolist()[0][1:], vocabulary)])
 
             target_bleu = [BPE_to_eval(sentence, lm=True) for sentence in target]
@@ -213,10 +233,10 @@ def train(dataset_option, finetuning):
             if bleu > best_bleu:
                 best_bleu = bleu
                 torch.save(model.state_dict(),
-                           'output/model_lm_%.pt'.format(dataset_option)
+                           folder_path + 'model.pt'
                            )
 
-                torch.save(optimizer.state_dict(), 'output/optim_lm.bin')
+                torch.save(optimizer.state_dict(), folder_path + 'optimizer.bin')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description='Language Model Training')
