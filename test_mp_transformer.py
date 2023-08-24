@@ -74,7 +74,7 @@ def test():
 
     model.load_state_dict(
         torch.load(
-            'output/transformer/en2de/1234/model.pt',
+            'output/transformer/en2de/1234/model.pt',  map_location='cuda:0'
         ),
     )
 
