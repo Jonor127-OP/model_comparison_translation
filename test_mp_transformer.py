@@ -25,12 +25,12 @@ import sacrebleu
 def load_vocabulary(dataset_option):
     if dataset_option == 1:
         vocab_path = 'dataset/nl/seq2seq/en2de/wmt17_en_de/vocabulary.json'
-        test_src_path = 'dataset/nl/seq2seq/en2de/wmt17_en_de/test.en.ids.gz'
-        test_tgt_path = 'dataset/nl/seq2seq/en2de/wmt17_en_de/test.de.ids.gz'
+        # test_src_path = 'dataset/nl/seq2seq/en2de/wmt17_en_de/test.en.ids.gz'
+        # test_tgt_path = 'dataset/nl/seq2seq/en2de/wmt17_en_de/test.de.ids.gz'
     elif dataset_option == 2:
         vocab_path = 'dataset/nl/seq2seq/en2fr/wmt14_en_fr/vocabulary.json'
-        test_src_path = 'dataset/nl/seq2seq/en2fr/wmt14_en_fr/test.en.ids.gz'
-        test_tgt_path = 'dataset/nl/seq2seq/en2fr/wmt14_en_fr/test.fr.ids.gz'
+        # test_src_path = 'dataset/nl/seq2seq/en2fr/wmt14_en_fr/test.en.ids.gz'
+        # test_tgt_path = 'dataset/nl/seq2seq/en2fr/wmt14_en_fr/test.fr.ids.gz'
     else:
         raise ValueError("Invalid dataset option. Choose 1 for wmt17_en_de or 2 for wmt14_en_fr.")
     
@@ -74,6 +74,13 @@ def test(dataset_option):
         number_of_layers=6,
         dropout_probability=0.1
     )
+
+    if dataset_option == 1:
+        test_src_path = 'dataset/nl/seq2seq/en2de/wmt17_en_de/test.en.ids.gz'
+        test_tgt_path = 'dataset/nl/seq2seq/en2de/wmt17_en_de/test.de.ids.gz'
+    elif dataset_option == 2:
+        test_src_path = 'dataset/nl/seq2seq/en2fr/wmt14_en_fr/test.en.ids.gz'
+        test_tgt_path = 'dataset/nl/seq2seq/en2fr/wmt14_en_fr/test.fr.ids.gz'
 
     with gzip.open(test_src_path, 'r') as file:
         X_test = file.read()
