@@ -7,6 +7,7 @@ import datetime
 import re
 import csv
 import argparse
+import random
 
 import torch
 
@@ -53,6 +54,13 @@ def test(dataset_option):
     BATCH_SIZE = 32
     MAX_LEN = 100
 
+    SEED = 1234
+    random.seed(SEED)
+    np.random.seed(SEED)
+    torch.manual_seed(SEED)
+    torch.cuda.manual_seed(SEED)
+    torch.backends.cudnn.deterministic = True
+
     # Step 2: Prepare the model (original transformer) and push to GPU
     model = Transformer(
         model_dimension=512,
@@ -84,13 +92,17 @@ def test(dataset_option):
     
 
     if dataset_option == 1:
-       model_path = 'output/transformer/en2de/1234/model.pt'
+       model_path = './output/transformer/en2de/' + str(SEED) + str('/')
     elif dataset_option == 2:
-       model_path = 'output/transformer/en2fr/1234/model.pt'
+       model_path = './output/transformer/en2fr/' + str(SEED) + str('/')
     else:
        raise ValueError("Invalid dataset option. Choose 1 for en2de or 2 for en2fr.")
 
-    model.load_state_dict(torch.load(model_path, map_location='cuda:0'))
+    model.load_state_dict(
+        torch.load(
+            model_path + 'model.pt', map_location='cuda:0'
+            ),
+        )
 
 
     model.eval()
