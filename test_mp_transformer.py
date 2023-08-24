@@ -70,10 +70,11 @@ def test():
     test_loader  = DataLoader(test_dataset, batch_size=BATCH_SIZE, num_workers=4, collate_fn=MyCollateS2S(pad_idx=0))
 
     model, test_loader = accelerator.prepare(model, test_loader)
+    
 
     model.load_state_dict(
         torch.load(
-            'output/model_lm.pt',
+            'output/transormer/en2de/1234/model.pt',
         ),
     )
 
