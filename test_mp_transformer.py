@@ -6,6 +6,7 @@ import time
 import datetime
 import re
 import csv
+import argparse
 
 import torch
 
@@ -21,13 +22,23 @@ from accelerate import Accelerator, DistributedDataParallelKwargs, InitProcessGr
 import sacrebleu
 
 
-def test():
-    # ddp_kwargs_1 = DistributedDataParallelKwargs(find_unused_parameters=True)
-    ddp_kwargs_1 = InitProcessGroupKwargs(timeout=datetime.timedelta(seconds=5400))
-    accelerator = Accelerator(kwargs_handlers=[ddp_kwargs_1])
+def test(dataset_option):
+    ddp_kwargs_1 = DistributedDataParallelKwargs(find_unused_parameters=True)
+    ddp_kwargs_2 = InitProcessGroupKwargs(timeout=datetime.timedelta(seconds=5400))
+    accelerator = Accelerator(kwargs_handlers=[ddp_kwargs_1, ddp_kwargs_2])
     
 
-    vocab_path = 'dataset/nl/seq2seq/en2de/wmt17_en_de/vocabulary.json'
+    if dataset_option == 1:
+        vocab_path = 'dataset/nl/seq2seq/en2de/wmt17_en_de/vocabulary.json'
+        test_src_path = 'dataset/nl/seq2seq/en2de/wmt17_en_de/test.en.ids.gz'
+        test_tgt_path = 'dataset/nl/seq2seq/en2de/wmt17_en_de/test.de.ids.gz'
+    elif dataset_option == 2:
+        vocab_path = 'dataset/nl/seq2seq/en2fr/wmt14_en_fr/vocabulary.json'
+        test_src_path = 'dataset/nl/seq2seq/en2fr/wmt14_en_fr/test.en.ids.gz'
+        test_tgt_path = 'dataset/nl/seq2seq/en2fr/wmt14_en_fr/test.fr.ids.gz'
+    else:
+        raise ValueError("Invalid dataset option. Choose 1 for wmt17_en_de or 2 for wmt14_en_fr.")
+    
     
     with open(vocab_path, 'r') as f:
         vocabulary = json.load(f)
@@ -52,14 +63,14 @@ def test():
         dropout_probability=0.1
     )
 
-    with gzip.open('dataset/nl/seq2seq/en2de/wmt17_en_de/test.en.ids.gz', 'r') as file:
+    with gzip.open(test_src_path, 'r') as file:
         X_test = file.read()
         X_test = X_test.decode(encoding='utf-8')
         X_test = X_test.split('\n')
         X_test = [np.array([int(x) for x in line.split()]) for line in X_test]
         X_test = X_test[0:50]
 
-    with gzip.open('dataset/nl/seq2seq/en2de/wmt17_en_de/test.de.ids.gz', 'r') as file:
+    with gzip.open(test_tgt_path, 'r') as file:
         Y_test = file.read()
         Y_test = Y_test.decode(encoding='utf-8')
         Y_test = Y_test.split('\n')
@@ -72,11 +83,15 @@ def test():
     model, test_loader = accelerator.prepare(model, test_loader)
     
 
-    model.load(
-        torch.load(
-            'output/transformer/en2de/1234/model.pt',  map_location='cuda:0'
-        ),
-    )
+    if dataset_option == 1:
+       model_path = 'output/transformer/en2de/1234/model.pt'
+    elif dataset_option == 2:
+       model_path = 'output/transformer/en2fr/1234/model.pt'
+    else:
+       raise ValueError("Invalid dataset option. Choose 1 for en2de or 2 for en2fr.")
+
+    model.load_state_dict(torch.load(model_path, map_location='cuda:0'))
+
 
     model.eval()
     target = []
@@ -123,4 +138,8 @@ def test():
 
 
 if __name__ == '__main__':
-    test()
+    parser = argparse.ArgumentParser(description='Language Model Testing')
+    parser.add_argument('--dataset', type=int, choices=[1, 2], default=1, help='Dataset option: 1 for dataset/nl/seq2seq/en2de/wmt17_en_de, 2 for dataset/nl/seq2seq/en2fr/wmt14_en_fr')
+    args = parser.parse_args()
+
+    test(args.dataset)
