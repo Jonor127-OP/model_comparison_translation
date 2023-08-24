@@ -22,13 +22,7 @@ from accelerate import Accelerator, DistributedDataParallelKwargs, InitProcessGr
 
 import sacrebleu
 
-
-def test(dataset_option):
-    ddp_kwargs_1 = DistributedDataParallelKwargs(find_unused_parameters=True)
-    ddp_kwargs_2 = InitProcessGroupKwargs(timeout=datetime.timedelta(seconds=5400))
-    accelerator = Accelerator(kwargs_handlers=[ddp_kwargs_1, ddp_kwargs_2])
-    
-
+def load_vocabulary(dataset_option):
     if dataset_option == 1:
         vocab_path = 'dataset/nl/seq2seq/en2de/wmt17_en_de/vocabulary.json'
         test_src_path = 'dataset/nl/seq2seq/en2de/wmt17_en_de/test.en.ids.gz'
@@ -44,6 +38,16 @@ def test(dataset_option):
     with open(vocab_path, 'r') as f:
         vocabulary = json.load(f)
 
+    return vocabulary
+
+
+def test(dataset_option):
+    ddp_kwargs_1 = DistributedDataParallelKwargs(find_unused_parameters=True)
+    ddp_kwargs_2 = InitProcessGroupKwargs(timeout=datetime.timedelta(seconds=5400))
+    accelerator = Accelerator(kwargs_handlers=[ddp_kwargs_1, ddp_kwargs_2])
+    
+
+    vocabulary = load_vocabulary(dataset_option)
     reverse_vocab = {id: token for token, id in vocabulary.items()}
 
     # Get the size of the JSON object
@@ -51,7 +55,7 @@ def test(dataset_option):
 
     # constants
 
-    BATCH_SIZE = 32
+    BATCH_SIZE = 10
     MAX_LEN = 100
 
     SEED = 1234
