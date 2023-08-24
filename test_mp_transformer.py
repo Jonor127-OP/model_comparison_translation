@@ -4,6 +4,8 @@ import tqdm
 import json
 import time
 import datetime
+import re
+import csv
 
 import torch
 
@@ -23,8 +25,11 @@ def test():
     # ddp_kwargs_1 = DistributedDataParallelKwargs(find_unused_parameters=True)
     ddp_kwargs_1 = InitProcessGroupKwargs(timeout=datetime.timedelta(seconds=5400))
     accelerator = Accelerator(kwargs_handlers=[ddp_kwargs_1])
+    
 
-    with open('dataset/nl/seq2seq/wmt17_en_de/vocabulary.json', 'r') as f:
+    vocab_path = 'dataset/nl/seq2seq/en2de/wmt17_en_de/vocabulary.json'
+    
+    with open(vocab_path, 'r') as f:
         vocabulary = json.load(f)
 
     reverse_vocab = {id: token for token, id in vocabulary.items()}
@@ -47,14 +52,14 @@ def test():
         dropout_probability=0.1
     )
 
-    with gzip.open('dataset/nl/seq2seq/wmt17_en_de/test.en.ids.gz', 'r') as file:
+    with gzip.open('dataset/nl/seq2seq/en2de/wmt17_en_de/test.en.ids.gz', 'r') as file:
         X_test = file.read()
         X_test = X_test.decode(encoding='utf-8')
         X_test = X_test.split('\n')
         X_test = [np.array([int(x) for x in line.split()]) for line in X_test]
         X_test = X_test[0:50]
 
-    with gzip.open('dataset/nl/seq2seq/wmt17_en_de/test.de.ids.gz', 'r') as file:
+    with gzip.open('dataset/nl/seq2seq/en2de/wmt17_en_de/test.de.ids.gz', 'r') as file:
         Y_test = file.read()
         Y_test = Y_test.decode(encoding='utf-8')
         Y_test = Y_test.split('\n')
@@ -75,6 +80,7 @@ def test():
     model.eval()
     target = []
     predicted = []
+    pairs = []
 
     for src_dev, tgt_dev in test_loader:
         src_mask = src_dev != 0
@@ -84,6 +90,13 @@ def test():
 
         sample = accelerator.gather(sample)
         tgt_dev = accelerator.gather(tgt_dev)
+        
+         # Remove special characters using regex
+        source_str = re.sub(r'(@@ )|(@@ ?$)', '', ' '.join(src_dev))
+        target_str = re.sub(r'(@@ )|(@@ ?$)', '', ' '.join(tgt_dev))
+        predicted_str = re.sub(r'(@@ )|(@@ ?$)', '', ' '.join(sample))
+        
+        pairs.append([source_str, target_str, predicted_str])
 
         target.append([ids_to_tokens(tgt_dev.tolist()[i][1:], vocabulary) for i in range(tgt_dev.shape[0])])
         predicted.append([ids_to_tokens(sample.tolist()[i][1:], vocabulary) for i in range(tgt_dev.shape[0])])
@@ -96,6 +109,17 @@ def test():
     bleu = bleu.score
 
     print('BLEU test set', bleu)
+
+    output_file = "comparisonresult_bleu={0}.csv".format(bleu)
+    with open(output_file, 'w', newline='', encoding='utf-8') as f:
+        writer = csv.writer(f)
+        writer.writerow(['Source', 'Target', "Predicted" ])    
+
+        for i, pair in enumerate(pairs):
+            writer.writerow(pair[0], pair[1], pair[2])
+    
+    print('Comparison results exported to', output_file)
+
 
 if __name__ == '__main__':
     test()
