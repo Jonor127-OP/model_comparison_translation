@@ -72,7 +72,7 @@ def test():
     model, test_loader = accelerator.prepare(model, test_loader)
     
 
-    model.load_state_dict(
+    model.load(
         torch.load(
             'output/transformer/en2de/1234/model.pt',  map_location='cuda:0'
         ),
