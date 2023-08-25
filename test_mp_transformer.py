@@ -158,7 +158,9 @@ def test(dataset_option):
         writer.writerow(['Source', 'Target', "Predicted" ])    
 
         for i, pair in enumerate(pairs):
-            writer.writerow(pair[0], pair[1], pair[2])
+           row = [pair[0], pair[1], pair[2]]
+           writer.writerow(row)
+
     
     print('Comparison results exported to', output_file)
 
