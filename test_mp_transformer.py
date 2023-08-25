@@ -142,7 +142,8 @@ def test(dataset_option):
 
         target.append([ids_to_tokens(tgt_dev.tolist()[i][1:], vocabulary) for i in range(tgt_dev.shape[0])])
         predicted.append([ids_to_tokens(sample.tolist()[i][1:], vocabulary) for i in range(tgt_dev.shape[0])])
-
+    
+    BPE_to_eval = BPE_to_eval(lm=False)
     target_bleu = [BPE_to_eval(sentence) for sentence in target[0]]
     predicted_bleu = [BPE_to_eval(sentence) for sentence in predicted[0]]
     print(target_bleu)
