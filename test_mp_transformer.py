@@ -145,6 +145,8 @@ def test(dataset_option):
 
     target_bleu = [BPE_to_eval(sentence) for sentence in target[0]]
     predicted_bleu = [BPE_to_eval(sentence) for sentence in predicted[0]]
+    print(target_bleu)
+    print(predicted_bleu)
 
     bleu = sacrebleu.corpus_bleu(predicted_bleu, [target_bleu])
 
