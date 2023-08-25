@@ -60,10 +60,10 @@ def train(dataset_option, finetuning):
     # constants
 
     EPOCHS = 100
-    BATCH_SIZE = 10
+    BATCH_SIZE = 100
     LEARNING_RATE = 1e-3
     GENERATE_EVERY  = 5
-    MAX_LEN = 100
+    MAX_LEN = 80
     WARMUP_STEP = 0
 
     SEED = 1234
@@ -150,14 +150,14 @@ def train(dataset_option, finetuning):
         X_dev_src = X_dev_src.decode(encoding='utf-8')
         X_dev_src = X_dev_src.split('\n')
         X_dev_src = [np.array([int(x) for x in line.split()]) for line in X_dev_src if line != '']
-        X_dev_src = X_dev_src[0:10]
+        # X_dev_src = X_dev_src[0:10]
 
         Y_dev_tgt = tgt_file.read()
         Y_dev_tgt = Y_dev_tgt.decode(encoding='utf-8')
         Y_dev_tgt = Y_dev_tgt.split('\n')
         Y_dev_tgt = [np.array([int(x) for x in line.split()]) for line in Y_dev_tgt if line != '']
 
-        Y_dev_tgt = Y_dev_tgt[0:10]
+        # Y_dev_tgt = Y_dev_tgt[0:10]
 
     train_dataset = TextSamplerDatasetS2S(X_dev_src, Y_dev_tgt, MAX_LEN)
     train_loader  = DataLoader(train_dataset, batch_size=BATCH_SIZE, num_workers=2, shuffle=True,
