@@ -133,9 +133,9 @@ def test(dataset_option):
         tgt_dev = accelerator.gather(tgt_dev)
         
          # Remove special characters using regex
-        source_str = re.sub(r'(@@ )|(@@ ?$)', '', ' '.join(src_dev))
-        target_str = re.sub(r'(@@ )|(@@ ?$)', '', ' '.join(tgt_dev))
-        predicted_str = re.sub(r'(@@ )|(@@ ?$)', '', ' '.join(sample))
+        source_str = re.sub(r'(@@ )|(@@ ?$)', '', ' '.join(ids_to_tokens(src_dev.tolist(), vocabulary)))
+        target_str = re.sub(r'(@@ )|(@@ ?$)', '', ' '.join(ids_to_tokens(tgt_dev.tolist(), vocabulary)))
+        predicted_str = re.sub(r'(@@ )|(@@ ?$)', '', ' '.join(ids_to_tokens(sample.tolist(), vocabulary)))
         
         pairs.append([source_str, target_str, predicted_str])
 
