@@ -58,6 +58,7 @@ def test(dataset_option):
 
     BATCH_SIZE = 10
     MAX_LEN = 100
+    
 
     SEED = 1234
     random.seed(SEED)
@@ -104,16 +105,16 @@ def test(dataset_option):
     
 
     if dataset_option == 1:
-       model_path = './output/transformer/en2de/' + str(SEED) + str('/')
+       folder_path = './output/transformer/en2de/' + str(SEED) + str('/')
     elif dataset_option == 2:
-       model_path = './output/transformer/en2fr/' + str(SEED) + str('/')
+       folder_path = './output/transformer/en2fr/' + str(SEED) + str('/')
     else:
        raise ValueError("Invalid dataset option. Choose 1 for en2de or 2 for en2fr.")
 
     model.load_state_dict(
         torch.load(
-            model_path + 'model.pt', map_location='cuda:0'
-            ),
+            folder_path + 'model.pt', map_location='cuda:0'
+            ),strict=False
         )
 
 
