@@ -127,7 +127,7 @@ def test(dataset_option):
         src_mask = src_dev != 0
         src_mask = src_mask[:, None, None, :]
 
-        sample = model.module.generate_greedy(src_dev, src_mask, MAX_LEN)
+        sample = model.generate_greedy(src_dev, src_mask, MAX_LEN)
 
         sample = accelerator.gather(sample)
         tgt_dev = accelerator.gather(tgt_dev)
