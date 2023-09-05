@@ -96,7 +96,7 @@ def test(dataset_option):
         Y_test = Y_test[0:50]
 
     test_dataset = TextSamplerDatasetLM(X_test, Y_test, MAX_LEN)
-    test_loader  = DataLoader(test_dataset, batch_size=1, num_workers=4, collate_fn=MyCollateLM(pad_idx=0))
+    test_loader  = DataLoader(test_dataset, batch_size=BATCH_SIZE, num_workers=4, collate_fn=MyCollateLM(pad_idx=0))
 
     model, test_loader = accelerator.prepare(model, test_loader)
     
@@ -130,7 +130,7 @@ def test(dataset_option):
         tgt_dev = accelerator.gather(tgt_dev)
         
          # Remove special characters using regex
-        source_str = re.sub(r'(@@ )|(@@ ?$)', '', ' '.join(' '.join(ids_to_tokens(src_dev.tolist()[i], vocabulary)) for i in range(src_dev.shape[0])))
+        source_str = re.sub(r'(@@ )|(@@ ?$)', '', ' '.join(' '.join(ids_to_tokens(tgt_dev_input.tolist()[i], vocabulary)) for i in range(tgt_dev_input.shape[0])))
         target_str = re.sub(r'(@@ )|(@@ ?$)', '', ' '.join(' '.join(ids_to_tokens(tgt_dev.tolist()[i][1:], vocabulary)) for i in range(tgt_dev.shape[0])))
         predicted_str = re.sub(r'(@@ )|(@@ ?$)', '', ' '.join(' '.join(ids_to_tokens(sample.tolist()[i][1:], vocabulary)) for i in range(sample.shape[0])))
 
