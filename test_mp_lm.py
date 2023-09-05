@@ -47,7 +47,7 @@ def test(dataset_option):
     ddp_kwargs_2 = InitProcessGroupKwargs(timeout=datetime.timedelta(seconds=5400))
     accelerator = Accelerator(kwargs_handlers=[ddp_kwargs_1, ddp_kwargs_2])
 
-    vocabulary = load_vocabulary(dataset_option)
+    vocabulary, src_path = load_vocabulary(dataset_option)
     reverse_vocab = {id: token for token, id in vocabulary.items()}
 
     # Get the size of the JSON object
