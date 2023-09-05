@@ -111,27 +111,29 @@ def test(dataset_option):
     predicted = []
     pairs = []
 
-    # for i, tgt_test in enumerate(test_loader):
-    #     tgt_dev_input, tgt_dev_output = get_input_output_lm(tgt_test, window=0)
+    for i, tgt_test in enumerate(test_loader):
+        tgt_dev_input, tgt_dev_output = get_input_output_lm(tgt_test, window=0)
 
-    #     if i == 0:
-    #        tgt_dev = tgt_dev_input
+        if i == 0:
+           tgt_dev = tgt_dev_input
 
-        # sample = model.generate_greedy(tgt_dev_input, MAX_LEN, cuda=True)   
-        #  
-    for src_dev in test_loader:
-        src_mask = src_dev != 0
-        src_mask = src_mask[:, None, None, :]
+        sample = model.generate_greedy(tgt_dev_input, MAX_LEN, cuda=True)   
+         
+    # for src_dev in test_loader:
+    #     src_mask = src_dev != 0
+    #     src_mask = src_mask[:, None, None, :]
 
 
-        sample = model.generate_greedy(src_dev, src_mask, MAX_LEN)
+    #     sample = model.generate_greedy(src_dev, src_mask, MAX_LEN)
+
+        
 
         sample = accelerator.gather(sample)
         tgt_dev = accelerator.gather(tgt_dev)
         
          # Remove special characters using regex
-        source_str = re.sub(r'(@@ )|(@@ ?$)', '', ' '.join(' '.join(ids_to_tokens(src_dev.tolist()[i], vocabulary)) for i in range(src_dev.shape[0])))
-        target_str = re.sub(r'(@@ )|(@@ ?$)', '', ' '.join(' '.join(ids_to_tokens(tgt_dev.tolist()[i][1:], vocabulary)) for i in range(tgt_dev.shape[0])))
+        source_str = re.sub(r'(@@ )|(@@ ?$)', '', ' '.join(' '.join(ids_to_tokens(tgt_dev_input.tolist()[i], vocabulary)) for i in range(tgt_dev_input.shape[0])))
+        target_str = re.sub(r'(@@ )|(@@ ?$)', '', ' '.join(' '.join(ids_to_tokens(tgt_dev_output.tolist()[i][1:], vocabulary)) for i in range(tgt_dev_output.shape[0])))
         predicted_str = re.sub(r'(@@ )|(@@ ?$)', '', ' '.join(' '.join(ids_to_tokens(sample.tolist()[i][1:], vocabulary)) for i in range(sample.shape[0])))
 
         
