@@ -113,6 +113,9 @@ def test(dataset_option):
 
     for i, tgt_test in enumerate(test_loader):
         tgt_dev_input, tgt_dev_output = get_input_output_lm(tgt_test, window=0)
+
+        if i == 0:
+           tgt_dev = tgt_dev_input
     # for src_dev, tgt_dev in test_loader:
     #     src_mask = src_dev != 0
     #     src_mask = src_mask[:, None, None, :]
