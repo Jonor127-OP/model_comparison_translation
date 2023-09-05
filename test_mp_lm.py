@@ -29,7 +29,7 @@ def load_vocabulary(dataset_option):
         # test_src_path = 'dataset/nl/lm/en2de/wmt17_en_de/test.en.ids.gz'
         # test_tgt_path = 'dataset/nl/lm/en2de/wmt17_en_de/test.de.ids.gz'
     elif dataset_option == 2:
-        vocab_path = 'dataset/nl/lm/en2fr/wmt14_en_de/vocabulary.json'
+        vocab_path = 'dataset/nl/lm/en2fr/wmt14_en_fr/vocabulary.json'
         # test_src_path = 'dataset/nl/lm/en2fr/wmt14_en_fr/test.en.ids.gz'
         # test_tgt_path = 'dataset/nl/lm/en2fr/wmt14_en_fr/test.fr.ids.gz'
     else:
