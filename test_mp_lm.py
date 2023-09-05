@@ -119,7 +119,7 @@ def test(dataset_option):
 
         # sample = model.generate_greedy(tgt_dev_input, MAX_LEN, cuda=True)   
         #  
-    for src_dev, tgt_dev in test_loader:
+    for src_dev in test_loader:
         src_mask = src_dev != 0
         src_mask = src_mask[:, None, None, :]
 
