@@ -116,7 +116,7 @@ def test(dataset_option):
     # for src_dev, tgt_dev in test_loader:
     #     src_mask = src_dev != 0
     #     src_mask = src_mask[:, None, None, :]
-        sample = model.module.generate_greedy(tgt_dev_input, MAX_LEN, cuda=True)
+        sample = model.generate_greedy(tgt_dev_input, MAX_LEN, cuda=True)
 
         sample = accelerator.gather(sample)
         tgt_dev = accelerator.gather(tgt_dev)
