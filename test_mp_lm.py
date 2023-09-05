@@ -26,12 +26,12 @@ import sacrebleu
 def load_vocabulary(dataset_option):
     if dataset_option == 1:
         vocab_path = 'dataset/nl/lm/en2de/wmt17_en_de/vocabulary.json'
-        # test_src_path = 'dataset/nl/lm/en2de/wmt17_en_de/test.en.ids.gz'
-        # test_tgt_path = 'dataset/nl/lm/en2de/wmt17_en_de/test.de.ids.gz'
+        # src_path = 'dataset/nl/lm/en2de/wmt17_en_de/test.merge_en_de.ids.gz'
+        
     elif dataset_option == 2:
         vocab_path = 'dataset/nl/lm/en2fr/wmt14_en_fr/vocabulary.json'
-        # test_src_path = 'dataset/nl/lm/en2fr/wmt14_en_fr/test.en.ids.gz'
-        # test_tgt_path = 'dataset/nl/lm/en2fr/wmt14_en_fr/test.fr.ids.gz'
+        # src_path = 'dataset/nl/lm/en2fr/wmt14_en_fr/test.merge_en_fr.ids.gz'
+        
     else:
         raise ValueError("Invalid dataset option. Choose 1 for wmt17_en_de or 2 for wmt14_en_fr.")
     
@@ -75,12 +75,12 @@ def test(dataset_option):
     )
     
     if dataset_option == 1:
-        test_src_path = 'dataset/nl/lm/en2de/wmt17_en_de/test.merge_en_de.ids.gz'
+        src_path = 'dataset/nl/lm/en2de/wmt17_en_de/test.merge_en_de.ids.gz'
     elif dataset_option == 2:
-        test_src_path = 'dataset/nl/lm/en2fr/wmt14_en_fr/test.merge_en_fr.ids.gz'
+        src_path = 'dataset/nl/lm/en2fr/wmt14_en_fr/test.merge_en_fr.ids.gz'
         
 
-    with gzip.open(test_src_path, 'r') as file:
+    with gzip.open(src_path, 'r') as file:
         Y_test = file.read()
         Y_test = Y_test.decode(encoding='utf-8')
         Y_test = Y_test.split('\n')
@@ -111,21 +111,13 @@ def test(dataset_option):
     predicted = []
     pairs = []
 
-    for i, tgt_test in enumerate(test_loader):
+    for i, tgt_test in test_loader:
         tgt_dev_input, tgt_dev_output = get_input_output_lm(tgt_test, window=0)
 
         if i == 0:
            tgt_dev = tgt_dev_input
 
         sample = model.generate_greedy(tgt_dev_input, MAX_LEN, cuda=True)   
-         
-    # for src_dev in test_loader:
-    #     src_mask = src_dev != 0
-    #     src_mask = src_mask[:, None, None, :]
-
-
-    #     sample = model.generate_greedy(src_dev, src_mask, MAX_LEN)
-
         
 
         sample = accelerator.gather(sample)
