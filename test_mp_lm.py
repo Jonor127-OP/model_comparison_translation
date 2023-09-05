@@ -74,10 +74,10 @@ def test(dataset_option):
         dropout_probability=0.1
     )
     
-    # if dataset_option == 1:
-    #     src_path = 'dataset/nl/lm/en2de/wmt17_en_de/test.merge_en_de.ids.gz'
-    # elif dataset_option == 2:
-    #     src_path = 'dataset/nl/lm/en2fr/wmt14_en_fr/test.merge_en_fr.ids.gz'
+    if dataset_option == 1:
+         src_path = 'dataset/nl/lm/en2de/wmt17_en_de/test.merge_en_de.ids.gz'
+    elif dataset_option == 2:
+         src_path = 'dataset/nl/lm/en2fr/wmt14_en_fr/test.merge_en_fr.ids.gz'
         
 
     with gzip.open(src_path, 'r') as file:
