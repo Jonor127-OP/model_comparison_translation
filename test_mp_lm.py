@@ -26,11 +26,11 @@ import sacrebleu
 def load_vocabulary(dataset_option):
     if dataset_option == 1:
         vocab_path = 'dataset/nl/lm/en2de/wmt17_en_de/vocabulary.json'
-        # src_path = 'dataset/nl/lm/en2de/wmt17_en_de/test.merge_en_de.ids.gz'
+        src_path = 'dataset/nl/lm/en2de/wmt17_en_de/test.merge_en_de.ids.gz'
         
     elif dataset_option == 2:
         vocab_path = 'dataset/nl/lm/en2fr/wmt14_en_fr/vocabulary.json'
-        # src_path = 'dataset/nl/lm/en2fr/wmt14_en_fr/test.merge_en_fr.ids.gz'
+        src_path = 'dataset/nl/lm/en2fr/wmt14_en_fr/test.merge_en_fr.ids.gz'
         
     else:
         raise ValueError("Invalid dataset option. Choose 1 for wmt17_en_de or 2 for wmt14_en_fr.")
@@ -39,7 +39,7 @@ def load_vocabulary(dataset_option):
     with open(vocab_path, 'r') as f:
         vocabulary = json.load(f)
 
-    return vocabulary
+    return vocabulary, src_path
 
 
 def test(dataset_option):
@@ -74,10 +74,10 @@ def test(dataset_option):
         dropout_probability=0.1
     )
     
-    if dataset_option == 1:
-        src_path = 'dataset/nl/lm/en2de/wmt17_en_de/test.merge_en_de.ids.gz'
-    elif dataset_option == 2:
-        src_path = 'dataset/nl/lm/en2fr/wmt14_en_fr/test.merge_en_fr.ids.gz'
+    # if dataset_option == 1:
+    #     src_path = 'dataset/nl/lm/en2de/wmt17_en_de/test.merge_en_de.ids.gz'
+    # elif dataset_option == 2:
+    #     src_path = 'dataset/nl/lm/en2fr/wmt14_en_fr/test.merge_en_fr.ids.gz'
         
 
     with gzip.open(src_path, 'r') as file:
@@ -111,7 +111,7 @@ def test(dataset_option):
     predicted = []
     pairs = []
 
-    for i, tgt_test in test_loader:
+    for i, tgt_test in enumerate(test_loader):
         tgt_dev_input, tgt_dev_output = get_input_output_lm(tgt_test, window=0)
 
         if i == 0:
