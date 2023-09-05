@@ -29,7 +29,7 @@ def load_vocabulary(dataset_option):
         # test_src_path = 'dataset/nl/lm/en2de/wmt17_en_de/test.en.ids.gz'
         # test_tgt_path = 'dataset/nl/lm/en2de/wmt17_en_de/test.de.ids.gz'
     elif dataset_option == 2:
-        vocab_path = 'dataset/nl/lm/en2fr/wmt14_en_devocabulary.json'
+        vocab_path = 'dataset/nl/lm/en2fr/wmt14_en_de/vocabulary.json'
         # test_src_path = 'dataset/nl/lm/en2fr/wmt14_en_fr/test.en.ids.gz'
         # test_tgt_path = 'dataset/nl/lm/en2fr/wmt14_en_fr/test.fr.ids.gz'
     else:
@@ -75,27 +75,19 @@ def test(dataset_option):
     )
     
     if dataset_option == 1:
-        test_src_path = 'dataset/nl/lm/en2de/wmt17_en_de/test.en.ids.gz'
-        test_tgt_path = 'dataset/nl/lm/en2de/wmt17_en_de/test.de.ids.gz'
+        test_src_path = 'dataset/nl/lm/en2de/wmt17_en_de/test.merge_en_de.ids.gz'
     elif dataset_option == 2:
-        test_src_path = 'dataset/nl/lm/en2fr/wmt14_en_fr/test.en.ids.gz'
-        test_tgt_path = 'dataset/nl/lm/en2fr/wmt14_en_fr/test.fr.ids.gz'
-    
-    with gzip.open(test_src_path, 'r') as file:
-        X_test = file.read()
-        X_test = X_test.decode(encoding='utf-8')
-        X_test = X_test.split('\n')
-        X_test = [np.array([int(x) for x in line.split()]) for line in X_test]
-        X_test = X_test[0:50]
+        test_src_path = 'dataset/nl/lm/en2fr/wmt14_en_fr/test.merge_en_de.ids.gz'
+        
 
-    with gzip.open(test_tgt_path, 'r') as file:
+    with gzip.open(test_src_path, 'r') as file:
         Y_test = file.read()
         Y_test = Y_test.decode(encoding='utf-8')
         Y_test = Y_test.split('\n')
         Y_test = [np.array([int(x) for x in line.split()]) for line in Y_test]
         Y_test = Y_test[0:50]
 
-    test_dataset = TextSamplerDatasetLM(X_test, Y_test, MAX_LEN)
+    test_dataset = TextSamplerDatasetLM(Y_test, MAX_LEN)
     test_loader  = DataLoader(test_dataset, batch_size=BATCH_SIZE, num_workers=4, collate_fn=MyCollateLM(pad_idx=0))
 
     model, test_loader = accelerator.prepare(model, test_loader)
@@ -131,7 +123,7 @@ def test(dataset_option):
         
          # Remove special characters using regex
         source_str = re.sub(r'(@@ )|(@@ ?$)', '', ' '.join(' '.join(ids_to_tokens(tgt_dev_input.tolist()[i], vocabulary)) for i in range(tgt_dev_input.shape[0])))
-        target_str = re.sub(r'(@@ )|(@@ ?$)', '', ' '.join(' '.join(ids_to_tokens(tgt_dev.tolist()[i][1:], vocabulary)) for i in range(tgt_dev.shape[0])))
+        target_str = re.sub(r'(@@ )|(@@ ?$)', '', ' '.join(' '.join(ids_to_tokens(tgt_dev_output.tolist()[i][1:], vocabulary)) for i in range(tgt_dev.shape[0])))
         predicted_str = re.sub(r'(@@ )|(@@ ?$)', '', ' '.join(' '.join(ids_to_tokens(sample.tolist()[i][1:], vocabulary)) for i in range(sample.shape[0])))
 
         
