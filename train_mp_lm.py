@@ -57,10 +57,10 @@ def train(dataset_option, finetuning):
 
     EPOCHS = 100
     BATCH_SIZE = 10
-    LEARNING_RATE = 1e-3
+    LEARNING_RATE = 5e-4
     GENERATE_EVERY  = 5
     MAX_LEN = 100
-    WARMUP_STEP = 0
+    WARMUP_STEP = 6000
     WINDOW_TRAINING = 0
 
     SEED = 1234
