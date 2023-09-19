@@ -117,12 +117,14 @@ def train(dataset_option, finetuning):
         Y_train = Y_train.decode(encoding='utf-8')
         Y_train = Y_train.split('\n')
         Y_train = [np.array([int(x) for x in line.split()]) for line in Y_train if line != '']
+        Y_train = Y_train [-400:]
 
     with gzip.open(valid_data_path, 'r') as file:
         Y_dev = file.read()
         Y_dev = Y_dev.decode(encoding='utf-8')
         Y_dev = Y_dev.split('\n')
         Y_dev = [np.array([int(x) for x in line.split()]) for line in Y_dev if line != '']
+        
 
     train_dataset = TextSamplerDatasetLM(Y_train, MAX_LEN)
     train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=8, shuffle=True,
