@@ -112,38 +112,37 @@ def train(dataset_option, finetuning):
     # Create SummaryWriter to save  TensorBoard logs
     tensorboard_writer = SummaryWriter(log_dir=folder_path + 'logs/')
 
-    with gzip.open(train_data_path, 'r') as file:
-        Y_train = file.read()
-        Y_train = Y_train.decode(encoding='utf-8')
-        Y_train = Y_train.split('\n')
-        Y_train = [np.array([int(x) for x in line.split()]) for line in Y_train if line != '']
-        Y_train = Y_train [-400:]
-
-    with gzip.open(valid_data_path, 'r') as file:
-        Y_dev = file.read()
-        Y_dev = Y_dev.decode(encoding='utf-8')
-        Y_dev = Y_dev.split('\n')
-        Y_dev = [np.array([int(x) for x in line.split()]) for line in Y_dev if line != '']
-        
-
-    train_dataset = TextSamplerDatasetLM(Y_train, MAX_LEN)
-    train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=8, shuffle=True,
-                           pin_memory=True, collate_fn=MyCollateLM(pad_idx=0))
-    dev_dataset = TextSamplerDatasetLM(Y_dev, MAX_LEN)
-    dev_loader  = DataLoader(dev_dataset, batch_size=BATCH_SIZE, num_workers=8, collate_fn=MyCollateLM(pad_idx=0))
-
+    # with gzip.open(train_data_path, 'r') as file:
+    #     Y_train = file.read()
+    #     Y_train = Y_train.decode(encoding='utf-8')
+    #     Y_train = Y_train.split('\n')
+    #     Y_train = [np.array([int(x) for x in line.split()]) for line in Y_train if line != '']
+    #
     # with gzip.open(valid_data_path, 'r') as file:
     #     Y_dev = file.read()
     #     Y_dev = Y_dev.decode(encoding='utf-8')
     #     Y_dev = Y_dev.split('\n')
     #     Y_dev = [np.array([int(x) for x in line.split()]) for line in Y_dev if line != '']
-    #     Y_dev = Y_dev[0:10]
-    
-    # train_dataset = TextSamplerDatasetLM(Y_dev, MAX_LEN)
+    #
+    #
+    # train_dataset = TextSamplerDatasetLM(Y_train, MAX_LEN)
     # train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=8, shuffle=True,
     #                        pin_memory=True, collate_fn=MyCollateLM(pad_idx=0))
     # dev_dataset = TextSamplerDatasetLM(Y_dev, MAX_LEN)
-    # dev_loader  = DataLoader(dev_dataset, batch_size=1, num_workers=8, collate_fn=MyCollateLM(pad_idx=0))
+    # dev_loader  = DataLoader(dev_dataset, batch_size=BATCH_SIZE, num_workers=8, collate_fn=MyCollateLM(pad_idx=0))
+
+    with gzip.open(train_data_path, 'r') as file:
+        Y_train = file.read()
+        Y_train = Y_train.decode(encoding='utf-8')
+        Y_train = Y_train.split('\n')
+        Y_train = [np.array([int(x) for x in line.split()]) for line in Y_train if line != '']
+        Y_train = Y_train[-2000:]
+    
+    train_dataset = TextSamplerDatasetLM(Y_train, MAX_LEN)
+    train_loader  = DataLoader(train_dataset, batch_size = BATCH_SIZE, num_workers=8, shuffle=True,
+                           pin_memory=True, collate_fn=MyCollateLM(pad_idx=0))
+    dev_dataset = TextSamplerDatasetLM(Y_train, MAX_LEN)
+    dev_loader  = DataLoader(dev_dataset, batch_size=1, num_workers=8, collate_fn=MyCollateLM(pad_idx=0))
 
     model, optimizer, train_loader, dev_loader, scheduler= accelerator.prepare(model, optimizer, train_loader, dev_loader, scheduler)
 
